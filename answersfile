@@ -1,0 +1,41 @@
+# Use US layout with US variant
+KEYMAPOPTS="us us"
+
+# Set hostname
+HOSTNAMEOPTS="-n ryzen"
+
+# Set device manager to udev
+DEVDOPTS="udev"
+
+# Contents of /etc/network/interfaces
+INTERFACESOPTS="auto lo
+iface lo inet loopback
+
+auto $network_interface_name
+iface $network_interface_name inet dhcp
+    hostname $hostname
+"
+
+# DNS
+DNSOPTS="-n 1.1.1.1 1.0.0.1"
+
+# Set timezone
+TIMEZONEOPTS="-z Europe/Lisbon"
+
+# Do not set proxy
+PROXYOPTS="none"
+
+# Add a random mirror
+APKREPOSOPTS="https://dl-cdn.alpinelinux.org/alpine/edge/main https://dl-cdn.alpinelinux.org/alpine/edge/community https://dl-cdn.alpinelinux.org/alpine/edge/testing"
+
+# Do not install SSH server
+SSHDOPTS="-c none"
+
+# Use chrony
+NTPOPTS="-c chrony"
+
+# Use /dev/sda as a data disk
+DISKOPTS="-e -m sys /dev/sda"
+
+# Setup user
+USEROPTS="-a -g audio,video,netdev,plugdev -f zero -k none zero"
