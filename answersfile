@@ -2,7 +2,7 @@
 KEYMAPOPTS="us us"
 
 # Set hostname
-HOSTNAMEOPTS="-n ryzen"
+HOSTNAMEOPTS="-n alpine"
 
 # Set device manager to udev
 DEVDOPTS="udev"
@@ -11,9 +11,9 @@ DEVDOPTS="udev"
 INTERFACESOPTS="auto lo
 iface lo inet loopback
 
-auto $network_interface_name
-iface $network_interface_name inet dhcp
-    hostname $hostname
+auto eth0
+iface eth0 inet dhcp
+    hostname alpine
 "
 
 # DNS
