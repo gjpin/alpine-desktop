@@ -103,9 +103,9 @@ apk add qutebrowser py3-adblock py3-pygments pdfjs
 # Install mpv and enable HW acceleration
 apk add mpv
 
-mkdir -p ~/.config/mpv
+mkdir -p /home/${USERNAME}/.config/mpv
 
-tee ~/.config/mpv/mpv.conf << EOF
+tee /home/${USERNAME}/.config/mpv/mpv.conf << EOF
 gpu-context=wayland
 hwdec=vaapi
 vo=gpu
