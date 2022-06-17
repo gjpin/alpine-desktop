@@ -4,14 +4,18 @@ USERNAME=
 passwd ${USERNAME}
 
 # Install common applications
-apk add htop bash bind-tools
+apk add bash htop bind-tools
+
+# Install and configure doas
+apk add doas
+mkdir -p /etc/doas.d
+echo "permit persist :wheel" >> /etc/doas.d/doas.conf
 
 # Create user directories
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
 mkdir -p /home/${USERNAME}/.local/share/themes
 mkdir -p /home/${USERNAME}/.local/bin
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
-mkdir -p /home/${USERNAME}/.bashrc.d
 apk add xdg-user-dirs
 
 ### bash
@@ -20,7 +24,17 @@ apk add shadow
 chsh --shell /bin/bash ${USERNAME}
 
 # bashrc
-tee -a /home/${USERNAME}/.bashrc << 'EOF'
+tee /home/${USERNAME}/.bash_profile << EOF
+# Load sway
+[ "$(tty)" = "/dev/tty1" ] && exec sway
+
+# Load .bashrc
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+fi
+EOF
+
+tee /home/${USERNAME}/.bashrc << 'EOF'
 # User specific environment
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
 then
@@ -28,20 +42,7 @@ then
 fi
 export PATH
 
-# User specific aliases and functions
-if [ -d ~/.bashrc.d ]; then
-	for rc in ~/.bashrc.d/*; do
-		if [ -f "$rc" ]; then
-			. "$rc"
-		fi
-	done
-fi
-
-unset rc
-EOF
-
-# aliases
-tee /home/${USERNAME}/.bashrc.d/alias << EOF
+# Aliases
 alias sudo="doas"
 EOF
 
@@ -86,13 +87,6 @@ adduser ${USERNAME} seat
 
 # Install sway and related packages
 apk add sway sway-doc xwayland swaylock swaybg swayidle waybar foot
-
-# Autostart sway
-tee /home/${USERNAME}/.bashrc.d/sway << EOF
-if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-  dbus-launch sway
-fi
-EOF
 
 # Sway config
 # exec pipewire-launcher
