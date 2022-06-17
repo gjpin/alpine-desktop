@@ -49,7 +49,7 @@ NTPOPTS="-c chrony"
 DISKOPTS="-e -m sys -k edge -s ${SWAP_SIZE_MB} /dev/sda"
 
 # Setup user
-# USEROPTS="-a -g audio,video,netdev,plugdev -f ${USERNAME} -k none ${USERNAME}"
+USEROPTS="-a -g audio,video,netdev,input -f ${USERNAME} -k none ${USERNAME}"
 EOF
 
 # Install Alpine
