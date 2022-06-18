@@ -4,7 +4,7 @@ USERNAME=
 passwd ${USERNAME}
 
 # Install common applications
-apk add bash htop bind-tools
+apk add htop bind-tools curl man-pages mandoc
 
 # Install and configure doas
 apk add doas
@@ -18,7 +18,10 @@ mkdir -p /home/${USERNAME}/.local/bin
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 apk add xdg-user-dirs
 
-### bash
+##### bash
+# Install bash
+apk add apk add bash
+
 # Change default bash for user
 apk add shadow
 chsh --shell /bin/bash ${USERNAME}
@@ -42,8 +45,12 @@ then
 fi
 export PATH
 
+# Environment variables
+export EDITOR=nvim
+
 # Aliases
 alias sudo="doas"
+alias vi="nvim"
 EOF
 
 # Avoid overwriting resolv.conf by DHCP
@@ -77,7 +84,7 @@ EOF
 apk add mesa-dri-gallium
 
 # Install fonts
-apk add ttf-dejavu font-jetbrains-mono-nerd
+apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
 
 # Setup seatd daemon
 apk add seatd
@@ -86,7 +93,11 @@ rc-service seatd start
 adduser ${USERNAME} seat
 
 # Install sway and related packages
-apk add sway sway-doc xwayland swaylock swaybg swayidle waybar foot
+apk add sway sway-doc xwayland swaylock swaybg swayidle waybar grimshot grimshot-doc foot dmenu
+
+# Import sway config
+mkdir -p /home/${USERNAME}/.config/sway
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway.config -o /home/${USERNAME}/.config/sway/config
 
 # Sway config
 # exec pipewire-launcher
@@ -104,6 +115,9 @@ gpu-context=wayland
 hwdec=vaapi
 vo=gpu
 EOF
+
+# neovim
+apk add neovim
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
