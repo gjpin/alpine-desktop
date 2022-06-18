@@ -3,9 +3,6 @@ USERNAME=
 # Change user password
 passwd ${USERNAME}
 
-# Install common applications
-apk add htop bind-tools curl man-pages mandoc
-
 # Install and configure doas
 apk add doas
 mkdir -p /etc/doas.d
@@ -20,7 +17,7 @@ apk add xdg-user-dirs
 
 ##### bash
 # Install bash
-apk add apk add bash
+apk add bash
 
 # Change default bash for user
 apk add shadow
@@ -67,6 +64,9 @@ EOF
 
 # Install pipewire/wireplumber
 apk add pipewire wireplumber
+
+# Install common applications
+apk add htop bind-tools curl man-pages mandoc
 
 ### Sway
 # Set XDG_RUNTIME_DIR variable
