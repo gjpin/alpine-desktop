@@ -34,7 +34,12 @@ require('packer').startup(function()
     use 'hrsh7th/cmp-cmdline'
 
     -- color schemes
-    use 'projekt0n/github-nvim-theme'
+    use { 
+        'projekt0n/github-nvim-theme',
+        config = function()
+            require('github-theme').setup()
+        end
+    }
 
     -- vimwiki
     use {
@@ -51,19 +56,11 @@ require('packer').startup(function()
     }
 
     -- alpha: greeter
-    use { 
+    use {
         'goolord/alpha-nvim',
         requires = { 'kyazdani42/nvim-web-devicons' },
         config = function ()
-            require'alpha'.setup(require'alpha.themes.startify'.opts)
-            local startify = require("alpha.themes.startify")
-            startify.section.mru_cwd.val = { { type = "padding", val = 0 } }
-            startify.section.bottom_buttons.val = {
-                startify.button("e", "new file", ":ene <bar> startinsert <cr>"),
-                startify.button("v", "neovim config", ":e ~/.config/nvim/init.lua<cr>"),
-                startify.button("q", "quit nvim", ":qa<cr>"),
-            }  
-            keymap('n', '<c-n>', ':Alpha<cr>', {noremap = true})
+            require'alpha'.setup(require'alpha.themes.startify'.config)
         end
     }
 
@@ -77,15 +74,12 @@ vim.cmd([[
   augroup end
 ]])
 
--- Enable color scheme
-require('github-theme').setup()
-
 -- Treesitter configuration
 local configs = require'nvim-treesitter.configs'
 configs.setup {
     ensure_installed = "maintained",
     highlight = {
-        enable = true,
+        enable = true
     },
     indent = {
         enable = true

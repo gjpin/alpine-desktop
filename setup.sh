@@ -70,7 +70,7 @@ apk add pipewire wireplumber
 apk add mandoc man-pages docs
 
 # Install common applications
-apk add htop bind-tools curl
+apk add htop bind-tools curl tar git
 
 ### Sway
 # Set XDG_RUNTIME_DIR variable
@@ -131,7 +131,7 @@ apk add go
 apk add python3 py3-pip
 
 # Build tools
-apk add meson samurai
+apk add build-base meson samurai clang
 
 # Hashi stack
 apk add nomad consul terraform packer
@@ -141,13 +141,26 @@ apk add tailscale
 
 ##### neovim
 # Install neovim
-apk add neovim nvim-packer
+apk add neovim
 
-# Import neovim configuration
+# Install packer
+git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+ ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+
 mkdir -p /home/${USERNAME}/.config/nvim
+
+tee /home/${USERNAME}/.config/nvim << EOF
+require('packer').startup(function()
+    use 'wbthomason/packer.nvim'
+end)
+EOF
+
+nvim --headless +PackerCompile +qa
+
+# Import configuration
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
 
-nvim --headless --cmd "PackerSync"
+nvim --headless +PackerSync +qa
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
