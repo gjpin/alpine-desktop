@@ -43,7 +43,8 @@ fi
 export PATH
 
 # Environment variables
-export EDITOR=nvim
+export EDITOR="nvim"
+export VISUAL="nvim"
 
 # Aliases
 alias sudo="doas"
@@ -65,8 +66,11 @@ EOF
 # Install pipewire/wireplumber
 apk add pipewire wireplumber
 
+# Install man pages
+apk add mandoc man-pages docs
+
 # Install common applications
-apk add htop bind-tools curl man-pages mandoc
+apk add htop bind-tools curl
 
 ### Sway
 # Set XDG_RUNTIME_DIR variable
@@ -93,11 +97,11 @@ rc-service seatd start
 adduser ${USERNAME} seat
 
 # Install sway and related packages
-apk add sway sway-doc xwayland swaylock swaybg swayidle waybar grimshot grimshot-doc foot dmenu
+apk add sway xwayland swaylock swaybg swayidle waybar grimshot foot dmenu wl-clipboard
 
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway.config -o /home/${USERNAME}/.config/sway/config
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway -o /home/${USERNAME}/.config/sway/config
 
 # Sway config
 # exec pipewire-launcher
@@ -116,8 +120,34 @@ hwdec=vaapi
 vo=gpu
 EOF
 
-# neovim
-apk add neovim
+##### Development
+# Install node LTS and npm
+apk add nodejs npm
+
+# Install go
+apk add go
+
+# Install python3 and pip
+apk add python3 py3-pip
+
+# Build tools
+apk add meson samurai
+
+# Hashi stack
+apk add nomad consul terraform packer
+
+# Tailscale
+apk add tailscale
+
+##### neovim
+# Install neovim
+apk add neovim nvim-packer
+
+# Import neovim configuration
+mkdir -p /home/${USERNAME}/.config/nvim
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
+
+nvim --headless --cmd "PackerSync"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}

@@ -1,0 +1,162 @@
+-- Configure tab behaviour
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
+
+-- Keybindings
+local keymap = vim.api.nvim_set_keymap
+keymap('n', '<c-s>', ':w<CR>', {})
+keymap('i', '<c-s>', '<Esc>:w<CR>a', {})
+local opts = { noremap = true }
+keymap('n', '<c-j>', '<c-w>j', opts)
+keymap('n', '<c-h>', '<c-w>h', opts)
+keymap('n', '<c-k>', '<c-w>k', opts)
+keymap('n', '<c-l>', '<c-w>l', opts)
+
+-- Plugins
+require('packer').startup(function()
+
+    -- packer
+    use 'wbthomason/packer.nvim'
+
+    -- treesitter
+    use 'nvim-treesitter/nvim-treesitter'
+
+    -- lsp
+    use 'neovim/nvim-lspconfig'
+    use 'williamboman/nvim-lsp-installer'
+
+    -- autocompletion
+    use 'hrsh7th/nvim-cmp'
+    use 'hrsh7th/cmp-nvim-lsp'
+    use 'hrsh7th/cmp-buffer'
+    use 'hrsh7th/cmp-path'
+    use 'hrsh7th/cmp-cmdline'
+
+    -- color schemes
+    use 'projekt0n/github-nvim-theme'
+
+    -- vimwiki
+    use {
+        'vimwiki/vimwiki',
+        config = function()
+          vim.g.vimwiki_list = {
+            {
+              path = '~/',
+              syntax = 'markdown',
+              ext  = '.md',
+            }
+          }
+        end
+    }
+
+    -- alpha: greeter
+    use { 
+        'goolord/alpha-nvim',
+        requires = { 'kyazdani42/nvim-web-devicons' },
+        config = function ()
+            require'alpha'.setup(require'alpha.themes.startify'.opts)
+            local startify = require("alpha.themes.startify")
+            startify.section.mru_cwd.val = { { type = "padding", val = 0 } }
+            startify.section.bottom_buttons.val = {
+                startify.button("e", "new file", ":ene <bar> startinsert <cr>"),
+                startify.button("v", "neovim config", ":e ~/.config/nvim/init.lua<cr>"),
+                startify.button("q", "quit nvim", ":qa<cr>"),
+            }  
+            keymap('n', '<c-n>', ':Alpha<cr>', {noremap = true})
+        end
+    }
+
+end)
+
+-- Automatically run :PackerCompile whenever init.lua is updated
+vim.cmd([[
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost init.lua source <afile> | PackerCompile
+  augroup end
+]])
+
+-- Enable color scheme
+require('github-theme').setup()
+
+-- Treesitter configuration
+local configs = require'nvim-treesitter.configs'
+configs.setup {
+    ensure_installed = "maintained",
+    highlight = {
+        enable = true,
+    },
+    indent = {
+        enable = true
+    }
+}
+
+-- LSP configuration
+local lsp_installer = require("nvim-lsp-installer")
+lsp_installer.on_server_ready(function(server)
+    local opts = {}
+    server:setup(opts)
+end)
+
+local function nkeymap(key, map)
+    keymap('n', key, map, opts)
+end
+
+nkeymap('gd', ':lua vim.lsp.buf.definition()<cr>')
+nkeymap('gD', ':lua vim.lsp.buf.declaration()<cr>')
+nkeymap('gi', ':lua vim.lsp.buf.implementation()<cr>')
+nkeymap('gw', ':lua vim.lsp.buf.document_symbol()<cr>')
+nkeymap('gw', ':lua vim.lsp.buf.workspace_symbol()<cr>')
+nkeymap('gr', ':lua vim.lsp.buf.references()<cr>')
+nkeymap('gt', ':lua vim.lsp.buf.type_definition()<cr>')
+nkeymap('K', ':lua vim.lsp.buf.hover()<cr>')
+nkeymap('<c-k>', ':lua vim.lsp.buf.signature_help()<cr>')
+nkeymap('<leader>af', ':lua vim.lsp.buf.code_action()<cr>')
+nkeymap('<leader>rn', ':lua vim.lsp.buf.rename()<cr>')
+
+-- cmp autocompletion configuration
+local cmp = require'cmp'
+
+cmp.setup({
+    mapping = cmp.mapping.preset.insert({
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    }),
+    sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+    }, {
+        { name = 'buffer' },
+    })
+})
+
+cmp.setup.cmdline('/', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+        { name = 'buffer' }
+    }
+})
+
+cmp.setup.cmdline(':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+        { name = 'path' }
+    }, {
+        { name = 'cmdline' }
+    })
+})
+
+local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+  -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+  -- https://github.com/williamboman/nvim-lsp-installer#available-lsps
+local servers = {'bashls', 'cssls', 'html', 'jsonls', 'tsserver', 'marksman', 'pyright', 'sqls', 'terraformls', 'yamlls', 'dockerls', 'gopls'}
+for _, lsp in pairs(servers) do
+  require('lspconfig')[lsp].setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+  }
+end
