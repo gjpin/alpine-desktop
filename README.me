@@ -1,5 +1,26 @@
 ```
+# Enable networking
+setup-interfaces
+rc-update add networking
+open default
+
+# Download install script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/install.sh
+
+# Run install script
+chmod +x install.sh
+./install.sh
+
+# Reboot
+
+# Login as root
+
+# Download setup script
+wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/setup.sh
+
+# Run setup script
+chmod +x setup.sh
+./setup.sh
 ```
 
 
@@ -11,9 +32,13 @@ JetBrains Mono Regular Nerd Font Complete
 
 nvim --headless +"LSPInstall gopls" +qa
 
-
+xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
 
 
 # Sway config
 # exec pipewire-launcher
+
+
+wifi:
+https://wiki.alpinelinux.org/wiki/Wi-Fi
