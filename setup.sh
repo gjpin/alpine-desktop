@@ -43,6 +43,7 @@ fi
 export PATH
 
 # Environment variables
+export SHELL="/bin/bash"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
@@ -103,8 +104,9 @@ apk add sway xwayland swaylock swaybg swayidle waybar grimshot foot dmenu wl-cli
 mkdir -p /home/${USERNAME}/.config/sway
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway -o /home/${USERNAME}/.config/sway/config
 
-# Sway config
-# exec pipewire-launcher
+# Import foot config
+mkdir -p /home/${USERNAME}/.config/foot
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/foot -o /home/${USERNAME}/.config/foot/foot.ini
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs
@@ -121,14 +123,17 @@ vo=gpu
 EOF
 
 ##### Development
-# Install node LTS and npm
-apk add nodejs npm
+# Install nodejs and npm
+apk add nodejs-current npm
 
 # Install go
 apk add go
 
 # Install python3 and pip
 apk add python3 py3-pip
+
+# Install rust and cargo
+apk add rust cargo
 
 # Build tools
 apk add build-base meson samurai clang
@@ -149,18 +154,18 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim \
 
 mkdir -p /home/${USERNAME}/.config/nvim
 
-tee /home/${USERNAME}/.config/nvim << EOF
-require('packer').startup(function()
-    use 'wbthomason/packer.nvim'
-end)
-EOF
+# tee /home/${USERNAME}/.config/nvim << EOF
+# require('packer').startup(function()
+#     use 'wbthomason/packer.nvim'
+# end)
+# EOF
 
-nvim --headless +PackerCompile +qa
+# nvim --headless +PackerCompile +qa
 
-# Import configuration
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
+# # Import configuration
+# curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
 
-nvim --headless +PackerSync +qa
+# nvim --headless +PackerSync +qa
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
