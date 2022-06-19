@@ -1,11 +1,3 @@
-shell=$SHELL
-term=foot
-login-shell=no
-
-app-id=foot
-title=foot
-locked-title=no
-
 font=JetBrainsMono Nerd Font:size=10
 
 [scrollback]
