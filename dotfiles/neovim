@@ -229,7 +229,7 @@ end
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
--- Enable the following language servers
+-- Enable the language servers
 local servers = { 'gopls', 'terraformls', 'bashls', 'tsserver', 'pyright', 'sqls', 'dockerls' }
 for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup {
@@ -237,6 +237,39 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
+
+-- go lsp setup
+lspconfig.gopls.setup{
+  cmd = {'gopls'},
+  gopls = {
+    analyses = {
+      unusedparams = true,
+      shadow = true,
+    },
+    staticcheck = true,
+  },
+}
+
+function goImports(wait_ms)
+  local params = vim.lsp.util.make_range_params()
+  params.context = {only = {"source.organizeImports"}}
+  local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, wait_ms)
+  for _, res in pairs(result or {}) do
+    for _, r in pairs(res.result or {}) do
+      if r.edit then
+        vim.lsp.util.apply_workspace_edit(r.edit, "UTF-8")
+      else
+        vim.lsp.buf.execute_command(r.command)
+      end
+    end
+  end
+end
+
+vim.api.nvim_exec([[
+  autocmd BufWritePre *.go lua vim.lsp.buf.formatting()
+  autocmd BufWritePre *.go lua goImports(1000)
+  ]], false
+)
 
 -- luasnip setup
 local luasnip = require 'luasnip'
@@ -281,4 +314,19 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- netrw config
+vim.cmd 'let g:netrw_banner = 0'
+vim.cmd 'let g:netrw_liststyle = 3'
+vim.cmd 'let g:netrw_browse_split = 4'
+vim.cmd 'let g:netrw_altv = 1'
+vim.cmd 'let g:netrw_winsize = 20'
+vim.keymap.set('', '<C-b>', ':Lexplore<CR>', {}) -- toggle netrw
+
+-- tabs keymaps
+vim.keymap.set('', '<C-t>', ':tabnew<CR>', {}) -- new tab
+vim.keymap.set('', '<C-w>', ':tabclose<CR>:tabN<CR>', {}) -- close tab
+vim.keymap.set('', '<C-PageDown>', ':tabnext<CR>', {}) -- next tab
+vim.keymap.set('', '<C-PageUp>', ':tabprevious<CR>', {}) -- previous tab
+
 -- vim: ts=2 sts=2 sw=2 et
