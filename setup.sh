@@ -16,8 +16,8 @@ mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 apk add xdg-user-dirs
 
 ##### bash
-# Install bash
-apk add bash
+# Install bash and shellcheck
+apk add bash shellcheck
 
 # Change default bash for user
 apk add shadow
@@ -35,21 +35,23 @@ fi
 EOF
 
 tee /home/${USERNAME}/.bashrc << 'EOF'
-# User specific environment
-if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
-then
-    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-fi
-export PATH
-
 # Environment variables
 export SHELL="/bin/bash"
 export EDITOR="nvim"
 export VISUAL="nvim"
+export GOPATH="~/go"
+export GOBIN="$GOPATH/bin"
 
 # Aliases
 alias sudo="doas"
 alias vi="nvim"
+
+# Paths
+export PATH="~/.local/bin:$PATH"
+export PATH="~/.npm-global/bin:$PATH"
+export PATH="$GOPATH:$PATH"
+
+# Helper functions
 EOF
 
 # Avoid overwriting resolv.conf by DHCP
@@ -129,8 +131,10 @@ apk add build-base meson samurai clang
 # Install go
 apk add go
 
-# Install nodejs and npm
+# Install nodejs/npm and change npm's default directory
 apk add nodejs-current npm
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -148,24 +152,33 @@ apk add tailscale
 # Install neovim
 apk add neovim
 
-# Install packer
-git clone --depth 1 https://github.com/wbthomason/packer.nvim \
- ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
+# Import configuration
 mkdir -p /home/${USERNAME}/.config/nvim
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
+nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
-# tee /home/${USERNAME}/.config/nvim << EOF
-# require('packer').startup(function()
-#     use 'wbthomason/packer.nvim'
-# end)
-# EOF
+# Install language servers
+go install golang.org/x/tools/gopls@latest
+go install github.com/lighttiger2505/sqls@latest
+go install github.com/hashicorp/terraform-ls@latest
+npm install -g bash-language-server
+npm install -g typescript-language-server typescript
+npm install -g pyright
+npm install -g dockerfile-language-server-nodejs
 
-# nvim --headless +PackerCompile +qa
+# Add LSP updater helper to bash
+tee -a /home/${USERNAME}/.bashrc << EOF
 
-# # Import configuration
-# curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
-
-# nvim --headless +PackerSync +qa
+update_lsp(){
+  go install golang.org/x/tools/gopls@latest
+  go install github.com/lighttiger2505/sqls@latest
+  go install github.com/hashicorp/terraform-ls@latest
+  npm install -g bash-language-server
+  npm install -g typescript-language-server typescript
+  npm install -g pyright
+  npm install -g dockerfile-language-server-nodejs
+}
+EOF
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
