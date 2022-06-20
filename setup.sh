@@ -123,20 +123,20 @@ vo=gpu
 EOF
 
 ##### Development
-# Install nodejs and npm
-apk add nodejs-current npm
+# Build tools
+apk add build-base meson samurai clang
 
 # Install go
 apk add go
+
+# Install nodejs and npm
+apk add nodejs-current npm
 
 # Install python3 and pip
 apk add python3 py3-pip
 
 # Install rust and cargo
 apk add rust cargo
-
-# Build tools
-apk add build-base meson samurai clang
 
 # Hashi stack
 apk add nomad consul terraform packer
