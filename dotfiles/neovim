@@ -17,7 +17,7 @@ require('packer').startup(function(use)
   -- UI to select things (files, grep results, open buffers...)
   use { 'nvim-telescope/telescope.nvim', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
-  use 'Mofiqul/vscode.nvim' -- Theme inspired by VScode Dark+ / Light+
+  use 'NLKNguyen/papercolor-theme' -- Papercolor theme
   use 'nvim-lualine/lualine.nvim' -- Fancier statusline
   -- Add indentation guides even on blank lines
   use 'lukas-reineke/indent-blankline.nvim'
@@ -58,9 +58,8 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
 --Set colorscheme
-vim.o.termguicolors = true
 vim.o.background = "dark"
-vim.cmd([[colorscheme vscode]])
+vim.cmd([[colorscheme PaperColor]])
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -69,7 +68,7 @@ vim.o.completeopt = 'menuone,noselect'
 require('lualine').setup {
   options = {
     icons_enabled = false,
-    theme = 'vscode',
+    theme = 'PaperColor',
     component_separators = '|',
     section_separators = '',
   },

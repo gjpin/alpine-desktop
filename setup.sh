@@ -26,7 +26,7 @@ chsh --shell /bin/bash ${USERNAME}
 # bashrc
 tee /home/${USERNAME}/.bash_profile << EOF
 # Load sway
-[ "$(tty)" = "/dev/tty1" ] && exec sway
+[ "$(tty)" = "/dev/tty1" ] && dbus-launch --exit-with-session sway
 
 # Load .bashrc
 if [ -f ~/.bashrc ]; then
@@ -66,8 +66,10 @@ nameserver 1.1.1.1
 nameserver 1.0.0.1
 EOF
 
-# Install pipewire/wireplumber
-apk add pipewire wireplumber
+# Enable D-Bus session
+apk add dbus dbus-openrc
+rc-service dbus start
+rc-update add dbus default
 
 # Install man pages
 apk add mandoc man-pages docs
@@ -75,7 +77,29 @@ apk add mandoc man-pages docs
 # Install common applications
 apk add htop bind-tools curl tar git
 
-### Sway
+##### Pipewire
+# https://wiki.alpinelinux.org/wiki/PipeWire
+# Install pipewire/wireplumber
+apk add pipewire wireplumber pipewire-alsa pipewire-pulse \
+  pipewire-spa-bluez pipewire-tools pavucontrol
+
+# Configure pipewire
+mkdir /etc/pipewire
+cp /usr/share/pipewire/pipewire.conf /etc/pipewire/
+tee -a /etc/pipewire/pipewire.conf << EOF
+{ path = "wireplumber"  args = "" }
+{ path = "/usr/bin/pipewire" args = "-c pipewire-pulse.conf" }
+EOF
+
+# Enable snd_seq kernel module
+modprobe snd_seq
+echo snd_seq >> /etc/modules
+
+# Enable realtime scheduling
+apk add rtkit
+adduser ${USERNAME} rtkit
+
+##### Sway
 # Set XDG_RUNTIME_DIR variable
 tee /etc/profile.d/xdg_runtime_dir.sh << 'EOF'
 if test -z "${XDG_RUNTIME_DIR}"; then
@@ -100,7 +124,8 @@ rc-service seatd start
 adduser ${USERNAME} seat
 
 # Install sway and related packages
-apk add sway xwayland swaylock swaybg swayidle waybar grimshot foot dmenu wl-clipboard
+apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
+  swayidle waybar grimshot foot dmenu wl-clipboard
 
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
@@ -179,6 +204,16 @@ update_lsp(){
   npm install -g dockerfile-language-server-nodejs
 }
 EOF
+
+# Install spotifyd and spotify-tui
+apk add spotifyd spotify-tui
+
+# Configure spotifyd
+mkdir -p /home/${USERNAME}/.config/spotifyd
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/spotifyd -o /home/${USERNAME}/.config/spotifyd/spotifyd.conf
+
+# Start spotifyd service when spotify-tui is launched
+# TODO
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}

@@ -1,0 +1,27 @@
+# Documentation:
+# https://spotifyd.github.io/spotifyd/config/File.html
+
+[global]
+username = "USER"
+password = "PASS"
+device_name = "spotifyd"
+
+# pulseaudio works fine as backend but it needs some workaround for give
+# access and write permission to its socket or run it system wide
+backend = "alsa"
+device = "default" # Given by `aplay -L`
+mixer = "PCM"
+volume-controller = "alsa"
+
+# bitrate could be 96|160|320
+bitrate = 160
+
+no_audio_cache = false
+cache_path = "/var/cache/spotifyd"
+
+volume-normalisation = true
+normalisation-pregain = -10
+
+use_mpris = false # it requires a dbus session
+
+autoplay = true

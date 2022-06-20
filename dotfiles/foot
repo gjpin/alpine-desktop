@@ -12,25 +12,31 @@ uri-characters=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.
 [mouse]
 hide-when-typing=no
 
+[cursor]
+ color=1c1c1c eeeeee
+ 
 [colors]
-background=0d1117
-foreground=b3b1ad
-regular0=484f58
-regular1=ff7b72
-regular2=3fb950
-regular3=d29922
-regular4=58a6ff
-regular5=bc8cff
-regular6=39c5cf
-regular7=b1bac4
-bright0=6e7681
-bright1=ffa198
-bright2=56d364
-bright3=e3b341
-bright4=79c0ff
-bright5=d2a8ff
-bright6=56d4dd
-bright7=f0f6fc
+ alpha=0.80
+ background=1c1c1c
+ foreground=eeeeee
+ regular0=1c1c1c  # black
+ regular1=af005f  # red
+ regular2=5faf00  # green
+ regular3=d7af5f  # yellow
+ regular4=5fafd7  # blue
+ regular5=808080  # magenta
+ regular6=d7875f  # cyan
+ regular7=d0d0d0  # white
+ bright0=bcbcbc   # bright black
+ bright1=5faf5f   # bright red
+ bright2=afd700   # bright green
+ bright3=af87d7   # bright yellow
+ bright4=ffaf00   # bright blue
+ bright5=ff5faf   # bright magenta
+ bright6=00afaf   # bright cyan
+ bright7=5f8787   # bright white
+ #selection-foreground=1c1c1c
+ #selection-background=af87d7
 
 [key-bindings]
 scrollback-up-page=Shift+Page_Up
