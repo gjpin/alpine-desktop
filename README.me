@@ -4,6 +4,11 @@ setup-interfaces
 rc-update add networking
 open default
 
+# Connect to wifi
+iwctl station wlan0 scan
+iwctl station wlan0 get-networks
+iwctl station wlan0 connect SSID
+
 # Download install script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/install.sh
 
@@ -29,3 +34,7 @@ https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-config
 
 wifi:
 https://wiki.alpinelinux.org/wiki/Wi-Fi
+
+# Steam
+apk add steam-devices
+flatpak install com.valvesoftware.Steam

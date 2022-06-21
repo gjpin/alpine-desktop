@@ -1,5 +1,8 @@
 USERNAME=
 
+# Install man pages
+apk add mandoc man-pages docs
+
 # Change user password
 passwd ${USERNAME}
 
@@ -20,21 +23,57 @@ apk add dbus dbus-openrc
 rc-service dbus start
 rc-update add dbus default
 
-# Install man pages
-apk add mandoc man-pages docs
+# Enable realtime scheduling
+apk add rtkit
+adduser ${USERNAME} rtkit
 
 # Install common applications
 apk add htop bind-tools curl tar git
 
-# Install mesa drivers
-apk add mesa-dri-gallium
-
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
 
+# Install shell utilities
+apk add util-linux pciutils usbutils coreutils binutils findutils grep iproute2
+
+# Install PAM
+apk add linux-pam shadow-login
+
+# Install firmware and microcode
+# Example of selective firmware packages:
+# https://wiki.alpinelinux.org/wiki/Immutable_root_with_atomic_upgrades
+apk add linux-firmware
+
+if [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "AuthenticAMD" ]]; then
+ apk add amd-ucode
+elif [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "GenuineIntel" ]]; then
+ apk add intel-ucode
+fi
+
+# Install mesa drivers
+apk add mesa-dri-gallium
+
+# Hardware acceleration support
+apk add ffmpeg libva libva-utils
+
+if [[ $(lspci | grep VGA) =~ "Intel" ]]; then
+ apk add intel-media-driver
+fi
+
+# Install mpv and enable HW acceleration
+apk add mpv
+
+mkdir -p /home/${USERNAME}/.config/mpv
+
+tee /home/${USERNAME}/.config/mpv/mpv.conf << EOF
+gpu-context=wayland
+hwdec=vaapi
+vo=gpu
+EOF
+
 ##### bash
 # Install bash and shellcheck
-apk add bash shellcheck
+apk add bash bash-completion shellcheck
 
 # Change default bash for user
 apk add shadow
@@ -109,10 +148,6 @@ sed -i '
 modprobe snd_seq
 echo snd_seq >> /etc/modules
 
-# Enable realtime scheduling
-apk add rtkit
-adduser ${USERNAME} rtkit
-
 ##### Sway
 # Set XDG_RUNTIME_DIR variable
 tee /etc/profile.d/xdg_runtime_dir.sh << 'EOF'
@@ -133,29 +168,37 @@ adduser ${USERNAME} seat
 
 # Install sway and related packages
 apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
-  swayidle waybar grimshot foot dmenu wl-clipboard
+  swayidle waybar grimshot foot dmenu wl-clipboard light xrandr
 
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway -o /home/${USERNAME}/.config/sway/config
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway \
+  -o /home/${USERNAME}/.config/sway/config
 
 # Import foot config
 mkdir -p /home/${USERNAME}/.config/foot
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/foot -o /home/${USERNAME}/.config/foot/foot.ini
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/foot \
+  -o /home/${USERNAME}/.config/foot/foot.ini
+
+# Import waybar config
+mkdir -p /home/${USERNAME}/.config/waybar
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/waybar.config \
+  -o /home/${USERNAME}/.config/waybar/config
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/waybar.style \
+  -o /home/${USERNAME}/.config/waybar/style.css
+
+# Import wallpaper
+mkdir -p /home/${USERNAME}/Pictures
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg \
+  -o /home/${USERNAME}/Pictures/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs
-
-# Install mpv and enable HW acceleration
-apk add mpv
-
-mkdir -p /home/${USERNAME}/.config/mpv
-
-tee /home/${USERNAME}/.config/mpv/mpv.conf << EOF
-gpu-context=wayland
-hwdec=vaapi
-vo=gpu
-EOF
 
 ##### Development
 # Build tools
@@ -187,7 +230,10 @@ apk add neovim
 
 # Import configuration
 mkdir -p /home/${USERNAME}/.config/nvim
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim -o /home/${USERNAME}/.config/nvim/init.lua
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim \
+  -o /home/${USERNAME}/.config/nvim/init.lua
+
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
 # Install language servers
@@ -219,10 +265,21 @@ apk add spotifyd spotify-tui
 
 # Configure spotifyd
 mkdir -p /home/${USERNAME}/.config/spotifyd
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/spotifyd -o /home/${USERNAME}/.config/spotifyd/spotifyd.conf
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/spotifyd \
+  -o /home/${USERNAME}/.config/spotifyd/spotifyd.conf
 
 # Start spotifyd service when spotify-tui is launched
 # TODO
+
+##### Flatpak
+apk add flatpak
+
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+
+flatpak update --appstream
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
