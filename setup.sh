@@ -15,6 +15,23 @@ mkdir -p /home/${USERNAME}/.local/bin
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 apk add xdg-user-dirs
 
+# Enable D-Bus session
+apk add dbus dbus-openrc
+rc-service dbus start
+rc-update add dbus default
+
+# Install man pages
+apk add mandoc man-pages docs
+
+# Install common applications
+apk add htop bind-tools curl tar git
+
+# Install mesa drivers
+apk add mesa-dri-gallium
+
+# Install fonts
+apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
+
 ##### bash
 # Install bash and shellcheck
 apk add bash shellcheck
@@ -54,6 +71,7 @@ export PATH="$GOPATH:$PATH"
 # Helper functions
 EOF
 
+##### Networking
 # Avoid overwriting resolv.conf by DHCP
 mkdir -p /etc/udhcpc
 tee /etc/udhcpc/udhcpc.conf << EOF
@@ -66,17 +84,6 @@ nameserver 1.1.1.1
 nameserver 1.0.0.1
 EOF
 
-# Enable D-Bus session
-apk add dbus dbus-openrc
-rc-service dbus start
-rc-update add dbus default
-
-# Install man pages
-apk add mandoc man-pages docs
-
-# Install common applications
-apk add htop bind-tools curl tar git
-
 ##### Pipewire
 # https://wiki.alpinelinux.org/wiki/PipeWire
 # Install pipewire/wireplumber
@@ -85,11 +92,18 @@ apk add pipewire wireplumber pipewire-alsa pipewire-pulse \
 
 # Configure pipewire
 mkdir /etc/pipewire
+
 cp /usr/share/pipewire/pipewire.conf /etc/pipewire/
-tee -a /etc/pipewire/pipewire.conf << EOF
-{ path = "wireplumber"  args = "" }
-{ path = "/usr/bin/pipewire" args = "-c pipewire-pulse.conf" }
-EOF
+
+sed -i '
+/context.exec = \[/a\
+    { path = "wireplumber"  args = "" }
+' /etc/pipewire/pipewire.conf
+
+sed -i '
+/context.exec = \[/a\
+    { path = "/usr/bin/pipewire" args = "-c pipewire-pulse.conf" }
+' /etc/pipewire/pipewire.conf
 
 # Enable snd_seq kernel module
 modprobe snd_seq
@@ -110,12 +124,6 @@ if test -z "${XDG_RUNTIME_DIR}"; then
   fi
 fi
 EOF
-
-# Install mesa drivers
-apk add mesa-dri-gallium
-
-# Install fonts
-apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
 
 # Setup seatd daemon
 apk add seatd
@@ -205,6 +213,7 @@ update_lsp(){
 }
 EOF
 
+##### Spotify
 # Install spotifyd and spotify-tui
 apk add spotifyd spotify-tui
 
