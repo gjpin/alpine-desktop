@@ -194,8 +194,8 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/w
 # Import wallpaper
 mkdir -p /home/${USERNAME}/Pictures
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg \
-  -o /home/${USERNAME}/Pictures/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/luca-bravo-bTxMLuJOff4-unsplash.jpg \
+  -o /home/${USERNAME}/Pictures/luca-bravo-bTxMLuJOff4-unsplash.jpg
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs

@@ -16,7 +16,7 @@ set $menu dmenu_path | dmenu | xargs swaymsg exec --
 
 ### Output configuration
 # Wallpaper
-output * bg ~/Pictures/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg fill
+output * bg ~/Pictures/luca-bravo-bTxMLuJOff4-unsplash.jpg fill
 
 # Example configuration:
 #
