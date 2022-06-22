@@ -19,9 +19,9 @@ mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 apk add xdg-user-dirs
 
 # Enable D-Bus session
-apk add dbus dbus-x11 dbus-openrc
+apk add dbus dbus-openrc dbus-x11
 rc-service dbus start
-rc-update add dbus default
+rc-update add dbus
 
 # Enable realtime scheduling
 apk add rtkit
@@ -127,26 +127,26 @@ nameserver 1.1.1.1
 nameserver 1.0.0.1
 EOF
 
+##### Alsa
+# https://wiki.alpinelinux.org/wiki/ALSA
+
+# Install Alsa packages
+apk add alsa-utils alsa-utils-doc alsa-lib alsaconf alsa-ucm-conf
+
+# Add root user to audio group
+adduser root audio
+
+# Enable Alsa services
+rc-update add alsa
+rc-service alsa start
+
 ##### Pipewire
 # https://wiki.alpinelinux.org/wiki/PipeWire
+
 # Install pipewire/wireplumber
 apk add pipewire wireplumber pipewire-alsa pipewire-pulse \
-  pipewire-spa-bluez pipewire-tools pavucontrol
-
-# Configure pipewire
-mkdir /etc/pipewire
-
-cp /usr/share/pipewire/pipewire.conf /etc/pipewire/
-
-sed -i '
-/context.exec = \[/a\
-    { path = "wireplumber"  args = "" }
-' /etc/pipewire/pipewire.conf
-
-sed -i '
-/context.exec = \[/a\
-    { path = "/usr/bin/pipewire" args = "-c pipewire-pulse.conf" }
-' /etc/pipewire/pipewire.conf
+  pipewire-spa-bluez pipewire-tools pipewire-spa-vulkan gst-plugin-pipewire \
+  pavucontrol pulseaudio-utils
 
 # Enable snd_seq kernel module
 modprobe snd_seq
@@ -213,8 +213,8 @@ apk add go
 
 # Install nodejs/npm and change npm's default directory
 apk add nodejs-current npm
-mkdir ~/.npm-global
-npm config set prefix "/home/${USERNAME}/.npm-global"
+mkdir /home/${USERNAME}/.npm-global
+su ${USERNAME} -c "npm config set prefix '~/.npm-global'"
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -241,15 +241,6 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/s
 # Start spotifyd service when spotify-tui is launched
 # TODO
 
-##### Flatpak
-apk add flatpak
-
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-
-flatpak update --appstream
-
 ##### neovim
 # Install neovim
 apk add neovim
@@ -260,22 +251,16 @@ mkdir -p /home/${USERNAME}/.config/nvim
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim \
   -o /home/${USERNAME}/.config/nvim/init.lua
 
-# Temporarily switch to $user
-su ${USERNAME}
-
 # Bootstrap neovim
-nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+su ${USERNAME} -c "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
 
 # Install language servers
-go install golang.org/x/tools/gopls@latest
-go install github.com/lighttiger2505/sqls@latest
-go install github.com/hashicorp/terraform-ls@latest
-npm install -g bash-language-server
-npm install -g typescript-language-server typescript
-npm install -g pyright
-
-# Switch back to root
-su root
+su ${USERNAME} -c "go install golang.org/x/tools/gopls@latest"
+su ${USERNAME} -c "go install github.com/lighttiger2505/sqls@latest"
+su ${USERNAME} -c "go install github.com/hashicorp/terraform-ls@latest"
+su ${USERNAME} -c "npm install -g bash-language-server"
+su ${USERNAME} -c "npm install -g typescript-language-server typescript"
+su ${USERNAME} -c "npm install -g pyright"
 
 # Add LSP updater helper to bash
 tee -a /home/${USERNAME}/.bashrc << EOF
@@ -289,6 +274,15 @@ update_lsp(){
   npm install -g pyright
 }
 EOF
+
+##### Flatpak
+apk add flatpak
+
+adduser ${USERNAME} flatpak
+
+su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
+
+su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
