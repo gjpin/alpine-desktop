@@ -28,7 +28,7 @@ apk add rtkit
 adduser ${USERNAME} rtkit
 
 # Install common applications
-apk add htop bind-tools curl tar git
+apk add htop bind-tools curl tar git upower
 
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
