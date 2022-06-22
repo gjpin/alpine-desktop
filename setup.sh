@@ -101,6 +101,7 @@ export GOBIN="$GOPATH/bin"
 # Aliases
 alias sudo="doas"
 alias vi="nvim"
+alias vim="nvim"
 
 # Paths
 export PATH="~/.local/bin:$PATH"

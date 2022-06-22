@@ -47,3 +47,7 @@ https://wiki.alpinelinux.org/wiki/Wi-Fi
 # Steam
 apk add steam-devices
 flatpak install com.valvesoftware.Steam
+
+
+# Install package from file
+apk add --repositories-file=/dev/null --allow-untrusted %package%
