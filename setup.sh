@@ -243,7 +243,6 @@ go install github.com/hashicorp/terraform-ls@latest
 npm install -g bash-language-server
 npm install -g typescript-language-server typescript
 npm install -g pyright
-npm install -g dockerfile-language-server-nodejs
 
 # Add LSP updater helper to bash
 tee -a /home/${USERNAME}/.bashrc << EOF
@@ -255,7 +254,6 @@ update_lsp(){
   npm install -g bash-language-server
   npm install -g typescript-language-server typescript
   npm install -g pyright
-  npm install -g dockerfile-language-server-nodejs
 }
 EOF
 
