@@ -8,6 +8,8 @@ sudo chown $USERNAME:$USERNAME alpine-iwd-edge-x86_64.iso
 
 # Install
 ```
+apk add iwd
+
 # Enable networking
 setup-interfaces
 rc-update add networking
@@ -29,25 +31,30 @@ chmod +x install.sh
 
 # Login as root
 
+# Install iwd package from usb
+fdisk -l
+mkdir /media/usb
+mount /dev/sda /media/usb/
+apk add --allow-untrusted /media/usb/apks/x86_64/iwd-1.28-r0.apk
+
 # Download setup script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/setup.sh
 
 # Run setup script
 chmod +x setup.sh
 ./setup.sh
+
+# Reboot
+
+# Login as user
 ```
 
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
-
-
-wifi:
-https://wiki.alpinelinux.org/wiki/Wi-Fi
 
 # Steam
 apk add steam-devices
 flatpak install com.valvesoftware.Steam
 
 
-# Install package from file
-apk add --repositories-file=/dev/null --allow-untrusted %package%
+xdg-user-dirs-update

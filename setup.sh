@@ -19,7 +19,7 @@ mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 apk add xdg-user-dirs
 
 # Enable D-Bus session
-apk add dbus dbus-openrc
+apk add dbus dbus-x11 dbus-openrc
 rc-service dbus start
 rc-update add dbus default
 
@@ -44,9 +44,11 @@ apk add linux-pam shadow-login
 # https://wiki.alpinelinux.org/wiki/Immutable_root_with_atomic_upgrades
 apk add linux-firmware
 
-if [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "AuthenticAMD" ]]; then
+if [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "AuthenticAMD" ]]
+then
  apk add amd-ucode
-elif [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "GenuineIntel" ]]; then
+elif [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "GenuineIntel" ]]
+then
  apk add intel-ucode
 fi
 
@@ -56,7 +58,8 @@ apk add mesa-dri-gallium
 # Hardware acceleration support
 apk add ffmpeg libva libva-utils
 
-if [[ $(lspci | grep VGA) =~ "Intel" ]]; then
+if [[ $(lspci | grep VGA) =~ "Intel" ]]
+then
  apk add intel-media-driver
 fi
 
@@ -211,7 +214,7 @@ apk add go
 # Install nodejs/npm and change npm's default directory
 apk add nodejs-current npm
 mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
+npm config set prefix "/home/${USERNAME}/.npm-global"
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -224,39 +227,6 @@ apk add nomad consul terraform packer
 
 # Tailscale
 apk add tailscale
-
-##### neovim
-# Install neovim
-apk add neovim
-
-# Import configuration
-mkdir -p /home/${USERNAME}/.config/nvim
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim \
-  -o /home/${USERNAME}/.config/nvim/init.lua
-
-nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-
-# Install language servers
-go install golang.org/x/tools/gopls@latest
-go install github.com/lighttiger2505/sqls@latest
-go install github.com/hashicorp/terraform-ls@latest
-npm install -g bash-language-server
-npm install -g typescript-language-server typescript
-npm install -g pyright
-
-# Add LSP updater helper to bash
-tee -a /home/${USERNAME}/.bashrc << EOF
-
-update_lsp(){
-  go install golang.org/x/tools/gopls@latest
-  go install github.com/lighttiger2505/sqls@latest
-  go install github.com/hashicorp/terraform-ls@latest
-  npm install -g bash-language-server
-  npm install -g typescript-language-server typescript
-  npm install -g pyright
-}
-EOF
 
 ##### Spotify
 # Install spotifyd and spotify-tui
@@ -279,6 +249,46 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 
 flatpak update --appstream
+
+##### neovim
+# Install neovim
+apk add neovim
+
+# Import configuration
+mkdir -p /home/${USERNAME}/.config/nvim
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim \
+  -o /home/${USERNAME}/.config/nvim/init.lua
+
+# Temporarily switch to $user
+su ${USERNAME}
+
+# Bootstrap neovim
+nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+# Install language servers
+go install golang.org/x/tools/gopls@latest
+go install github.com/lighttiger2505/sqls@latest
+go install github.com/hashicorp/terraform-ls@latest
+npm install -g bash-language-server
+npm install -g typescript-language-server typescript
+npm install -g pyright
+
+# Switch back to root
+su root
+
+# Add LSP updater helper to bash
+tee -a /home/${USERNAME}/.bashrc << EOF
+
+update_lsp(){
+  go install golang.org/x/tools/gopls@latest
+  go install github.com/lighttiger2505/sqls@latest
+  go install github.com/hashicorp/terraform-ls@latest
+  npm install -g bash-language-server
+  npm install -g typescript-language-server typescript
+  npm install -g pyright
+}
+EOF
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}

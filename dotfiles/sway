@@ -144,7 +144,7 @@ default_border none
 default_floating_border none
 
 # Start waybar
-exec waybar
+bar swaybar_command waybar
 
 # Start pipewire
 exec /usr/libexec/pipewire-launcher
