@@ -11,7 +11,7 @@ sudo chown $USERNAME:$USERNAME alpine-iwd-edge-x86_64.iso
 # Enable networking
 setup-interfaces
 rc-update add networking
-open default
+openrc default
 
 # Connect to wifi
 iwctl station wlan0 scan
