@@ -1,12 +1,12 @@
 * {
     font-family: JetBrainsMono Nerd Font;
-    font-size: 10px;
+    font-size: 12px;
     color: #d4d4d4;
 }
 
 window#waybar {
-    background-color: rgba(43, 48, 59, 0.5);
-    border-bottom: 3px solid rgba(100, 114, 125, 0.5);
+    background-color: #1e1e1e;
+    border-bottom: 3px solid rgba(84, 84, 84, 0.4);
     transition-property: background-color;
     transition-duration: .5s;
 }
@@ -40,19 +40,16 @@ window#waybar.hidden {
     background-color: #eb4d4b;
 }
 
-#mode {
-    background-color: #64727D;
-    border-bottom: 3px solid #ffffff;
-}
-
-#clock,
+#custom/clock,
 #battery,
 #backlight,
 #network,
 #pulseaudio,
 #tray,
-#mode,
-#idle_inhibitor
+#idle_inhibitor {
+    padding: 0 5px;
+    margin: 0 5px;
+}
 
 #window,
 #workspaces {
@@ -69,18 +66,6 @@ window#waybar.hidden {
     margin-right: 0;
 }
 
-#clock {
-    background-color: #64727D;
-}
-
-#battery {
-    background-color: #ffffff;
-}
-
-#battery.charging, #battery.plugged {
-    background-color: #26A65B;
-}
-
 @keyframes blink {
     to {
         background-color: #ffffff;
@@ -88,40 +73,11 @@ window#waybar.hidden {
 }
 
 #battery.critical:not(.charging) {
-    background-color: #f53c3c;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     animation-direction: alternate;
-}
-
-label:focus {
-    background-color: #000000;
-}
-
-#backlight {
-    background-color: #90b1b1;
-}
-
-#network {
-    background-color: #2980b9;
-}
-
-#network.disconnected {
-    background-color: #f53c3c;
-}
-
-#pulseaudio {
-    background-color: #f1c40f;
-}
-
-#pulseaudio.muted {
-    background-color: #90b1b1;
-}
-
-#tray {
-    background-color: #2980b9;
 }
 
 #tray > .passive {
@@ -130,35 +86,4 @@ label:focus {
 
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
-    background-color: #eb4d4b;
-}
-
-#idle_inhibitor {
-    background-color: #2d3436;
-}
-
-#idle_inhibitor.activated {
-    background-color: #ecf0f1;
-}
-
-#language {
-    background: #00b093;
-    padding: 0 5px;
-    margin: 0 5px;
-    min-width: 16px;
-}
-
-#keyboard-state {
-    background: #97e1ad;
-    padding: 0 0px;
-    margin: 0 5px;
-    min-width: 16px;
-}
-
-#keyboard-state > label {
-    padding: 0 5px;
-}
-
-#keyboard-state > label.locked {
-    background: rgba(0, 0, 0, 0.2);
 }

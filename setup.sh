@@ -44,11 +44,9 @@ apk add linux-pam shadow-login
 # https://wiki.alpinelinux.org/wiki/Immutable_root_with_atomic_upgrades
 apk add linux-firmware
 
-if [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "AuthenticAMD" ]]
-then
+if cat /proc/cpuinfo | grep vendor | grep "AuthenticAMD" > /dev/null; then
  apk add amd-ucode
-elif [[ $(cat /proc/cpuinfo | grep vendor | uniq) =~ "GenuineIntel" ]]
-then
+elif cat /proc/cpuinfo | grep vendor | grep "GenuineIntel" > /dev/null; then
  apk add intel-ucode
 fi
 
@@ -58,8 +56,7 @@ apk add mesa-dri-gallium
 # Hardware acceleration support
 apk add ffmpeg libva libva-utils
 
-if [[ $(lspci | grep VGA) =~ "Intel" ]]
-then
+if lspci | grep VGA | grep "Intel" > /dev/null; then
  apk add intel-media-driver
 fi
 
@@ -172,7 +169,8 @@ adduser ${USERNAME} seat
 
 # Install sway and related packages
 apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
-  swayidle waybar grimshot foot dmenu wl-clipboard light xrandr
+  swayidle waybar grimshot foot dmenu wl-clipboard xrandr \
+  light playerctl pactl
 
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
