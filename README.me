@@ -8,17 +8,10 @@ sudo chown $USERNAME:$USERNAME alpine-iwd-edge-x86_64.iso
 
 # Install
 ```
-apk add iwd
-
 # Enable networking
 setup-interfaces
 rc-update add networking
 openrc default
-
-# Connect to wifi
-iwctl station wlan0 scan
-iwctl station wlan0 get-networks
-iwctl station wlan0 connect SSID
 
 # Download install script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/install.sh
@@ -30,12 +23,6 @@ chmod +x install.sh
 # Reboot
 
 # Login as root
-
-# Install iwd package from usb
-fdisk -l
-mkdir /media/usb
-mount /dev/sda /media/usb/
-apk add --allow-untrusted /media/usb/apks/x86_64/iwd-1.28-r0.apk
 
 # Download setup script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/setup.sh

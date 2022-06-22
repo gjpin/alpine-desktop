@@ -45,8 +45,8 @@ SSHDOPTS="-c none"
 # Use chrony
 NTPOPTS="-c chrony"
 
-# Use /dev/sda as a data disk
-DISKOPTS="-e -m sys -k edge -s ${SWAP_SIZE_MB} /dev/sda"
+# Use /dev/nvme0n1 as a data disk
+DISKOPTS="-e -m sys -k edge -s ${SWAP_SIZE_MB} /dev/nvme0n1"
 
 # Setup user
 USEROPTS="-a -g wheel,audio,video,netdev,input -f ${USERNAME} -k none ${USERNAME}"
