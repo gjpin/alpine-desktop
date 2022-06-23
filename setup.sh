@@ -61,6 +61,15 @@ fi
 # Install mesa drivers
 apk add mesa-dri-gallium
 
+# Enable vulkan
+apk add vulkan-tools
+
+if lspci | grep VGA | grep "Intel" > /dev/null; then
+ apk add mesa-vulkan-intel
+elif lspci | grep VGA | grep "Radeon" > /dev/null; then
+  apk add mesa-vulkan-ati
+fi
+
 # Hardware acceleration support
 apk add ffmpeg libva libva-utils
 

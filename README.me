@@ -36,4 +36,7 @@ apk add steam-devices
 flatpak install --user com.valvesoftware.Steam
 
 
-xdg-user-dirs-update
+qutebrowser flags:
+```
+qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
+```
