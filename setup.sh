@@ -21,7 +21,6 @@ apk add xdg-user-dirs
 
 # Enable D-Bus session
 apk add dbus dbus-openrc dbus-x11
-rc-service dbus start
 rc-update add dbus
 
 # Enable realtime scheduling
@@ -29,7 +28,8 @@ apk add rtkit
 adduser ${USERNAME} rtkit
 
 # Install common applications
-apk add htop bind-tools curl tar git upower jq
+apk add htop bind-tools curl tar git upower jq openssh \
+  lm_sensors gzip p7zip unzip syncthing
 
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
@@ -55,7 +55,6 @@ fi
 if cat /proc/cpuinfo | grep vendor | grep "GenuineIntel" > /dev/null; then
  apk add thermald
  rc-update add thermald
- rc-service thermald start
 fi
 
 # Install mesa drivers
@@ -155,7 +154,6 @@ adduser root audio
 
 # Enable Alsa services
 rc-update add alsa
-rc-service alsa start
 
 ##### Pipewire
 # https://wiki.alpinelinux.org/wiki/PipeWire
@@ -184,7 +182,6 @@ EOF
 # Setup seatd daemon
 apk add seatd
 rc-update add seatd
-rc-service seatd start
 adduser ${USERNAME} seat
 
 # Install sway and related packages
@@ -310,6 +307,35 @@ su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub https://fla
 
 su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
 
+##### Podman
+# Install podman
+apk add podman
+
+# Enable cgroups v2
+sed -i 's|#rc_cgroup_mode="hybrid"|rc_cgroup_mode="unified"|' /etc/rc.conf
+
+# Enable cgroups service
+rc-update add cgroups
+
+# Enable rootless support
+modprobe tun
+echo tun >>/etc/modules
+echo ${USERNAME}:100000:65536 >/etc/subuid
+echo ${USERNAME}:100000:65536 >/etc/subgid
+
+###### Enable autologin
+# https://wiki.gentoo.org/wiki/Automatic_login_to_virtual_console#openrc-init
+tee /etc/conf.d/agetty-autologin << EOF
+agetty_options="--autologin ${USERNAME} --noclear"
+EOF
+
+cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
+
+rc-update add agetty-autologin.tty1 
+
+##### Outro
+# Only enable networking service after boot
+rc-update del networking boot
 
 # Create all XDG directories
 su ${USERNAME} -c "xdg-user-dirs-update"
