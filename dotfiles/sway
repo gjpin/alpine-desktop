@@ -48,7 +48,7 @@ exec swayidle -w \
 
     bindsym $mod+Shift+q kill
 
-    bindsym $mod+d exec $menu
+    bindsym $mod+Tab exec $menu
 
     floating_modifier $mod normal
 
