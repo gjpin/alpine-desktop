@@ -29,7 +29,7 @@ apk add rtkit
 adduser ${USERNAME} rtkit
 
 # Install common applications
-apk add htop bind-tools curl tar git upower
+apk add htop bind-tools curl tar git upower jq
 
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
@@ -69,6 +69,9 @@ if lspci | grep VGA | grep "Intel" > /dev/null; then
 elif lspci | grep VGA | grep "Radeon" > /dev/null; then
   apk add mesa-vulkan-ati
 fi
+
+# Install GPU tools
+apk add igt-gpu-tools
 
 # Hardware acceleration support
 apk add ffmpeg libva libva-utils
