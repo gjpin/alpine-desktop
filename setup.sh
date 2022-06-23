@@ -16,6 +16,7 @@ mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
 mkdir -p /home/${USERNAME}/.local/share/themes
 mkdir -p /home/${USERNAME}/.local/bin
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
+mkdir -p /home/${USERNAME}/Pictures/screenshots
 apk add xdg-user-dirs
 
 # Enable D-Bus session
@@ -48,6 +49,13 @@ if cat /proc/cpuinfo | grep vendor | grep "AuthenticAMD" > /dev/null; then
  apk add amd-ucode
 elif cat /proc/cpuinfo | grep vendor | grep "GenuineIntel" > /dev/null; then
  apk add intel-ucode
+fi
+
+# Install thermald
+if cat /proc/cpuinfo | grep vendor | grep "GenuineIntel" > /dev/null; then
+ apk add thermald
+ rc-update add thermald
+ rc-service thermald start
 fi
 
 # Install mesa drivers
@@ -169,8 +177,16 @@ adduser ${USERNAME} seat
 
 # Install sway and related packages
 apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
-  swayidle waybar grimshot foot dmenu wl-clipboard xrandr \
-  light playerctl pactl
+  swayidle waybar grimshot bemenu wl-clipboard xrandr
+
+# Install ctl for backlight / audio / volume
+apk add light playerctl pactl
+
+# Install terminal
+apk add foot
+
+# Install ranger and libsixel (file manager and sixel implementation)
+apk add ranger libsixel
 
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
@@ -194,10 +210,10 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/w
   -o /home/${USERNAME}/.config/waybar/style.css
 
 # Import wallpaper
-mkdir -p /home/${USERNAME}/Pictures
+mkdir -p /home/${USERNAME}/Pictures/wallpapers
 
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/luca-bravo-bTxMLuJOff4-unsplash.jpg \
-  -o /home/${USERNAME}/Pictures/luca-bravo-bTxMLuJOff4-unsplash.jpg
+  -o /home/${USERNAME}/Pictures/wallpapers/luca-bravo-bTxMLuJOff4-unsplash.jpg
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs
@@ -281,6 +297,10 @@ adduser ${USERNAME} flatpak
 su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
 
 su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
+
+
+# Create all XDG directories
+su ${USERNAME} -c "xdg-user-dirs-update"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
