@@ -40,3 +40,12 @@ qutebrowser flags:
 ```
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
+
+# Connect to wifi with wpa_cli:
+scan
+scan_results
+add_network
+set_network 0 ssid "ssid"
+set_network 0 psk "psk"
+enable_network 0
+save config

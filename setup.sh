@@ -226,8 +226,8 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/wa
 # Import wallpaper
 mkdir -p /home/${USERNAME}/Pictures/wallpapers
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/luca-bravo-bTxMLuJOff4-unsplash.jpg \
-  -o /home/${USERNAME}/Pictures/wallpapers/luca-bravo-bTxMLuJOff4-unsplash.jpg
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg \
+  -o /home/${USERNAME}/Pictures/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs
@@ -339,12 +339,15 @@ cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
 rc-update add agetty-autologin.tty1 
 
 ###### TLP
+# If it's a laptop, install and configure TLP
+if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
 apk add tlp
 
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tlp \
   -o /etc/tlp.conf
 
 rc-update add tlp
+fi
 
 ###### WPA_SUPPLICANT
 # Configure connection with wpa_cli
