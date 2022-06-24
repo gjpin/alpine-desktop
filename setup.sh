@@ -349,12 +349,23 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tl
 rc-update add tlp
 fi
 
-###### WPA_SUPPLICANT
+##### Swap file
+# Calculate swap size
+TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
+SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
+
+# Create swap file
+dd if=/dev/zero of=/swapfile bs=1M count=${SWAP_SIZE_MB} status=progress
+chmod 0600 /swapfile
+mkswap -U clear /swapfile
+swapon /swapfile
+echo '/swapfile none swap defaults 0 0' >>/etc/fstab
+
+##### Outro
 # Configure connection with wpa_cli
 echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(cat todo.txt)" > /etc/wpa_supplicant/wpa_supplicant.conf
 
-##### Outro
-# Only enable networking service after boot
+# Disable networking service on boot (default is still available)
 rc-update del networking boot
 
 # Create all XDG directories

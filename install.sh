@@ -1,9 +1,6 @@
 HOSTNAME=
 USERNAME=
-
-# Calculate swap size
-TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
-SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
+TIMEZONE=
 
 # Get network interface name
 NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F\/ '/pci/{print $NF}')
@@ -31,7 +28,7 @@ iface ${NETWORK_INTERFACE_NAME} inet dhcp
 DNSOPTS="-n 1.1.1.1 1.0.0.1"
 
 # Set timezone
-TIMEZONEOPTS="-z Europe/Lisbon"
+TIMEZONEOPTS="-z ${TIMEZONE}"
 
 # Do not set proxy
 PROXYOPTS="none"
@@ -46,7 +43,7 @@ SSHDOPTS="-c none"
 NTPOPTS="-c chrony"
 
 # Use /dev/nvme0n1 as a data disk
-DISKOPTS="-e -m sys -k edge -s ${SWAP_SIZE_MB} /dev/nvme0n1"
+DISKOPTS="-e -m sys -k edge -s 0 /dev/nvme0n1"
 
 # Setup user
 USEROPTS="-a -g wheel,audio,video,netdev,input -f ${USERNAME} -k none ${USERNAME}"
