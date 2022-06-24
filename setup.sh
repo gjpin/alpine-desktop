@@ -29,7 +29,7 @@ adduser ${USERNAME} rtkit
 
 # Install common applications
 apk add htop bind-tools curl tar git upower jq openssh \
-  lm_sensors gzip p7zip unzip syncthing
+  lm_sensors gzip p7zip unzip syncthing acpi acpi-utils cpupower
 
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
@@ -200,22 +200,22 @@ apk add ranger libsixel
 # Import sway config
 mkdir -p /home/${USERNAME}/.config/sway
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/sway \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/sway \
   -o /home/${USERNAME}/.config/sway/config
 
 # Import foot config
 mkdir -p /home/${USERNAME}/.config/foot
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/foot \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/foot \
   -o /home/${USERNAME}/.config/foot/foot.ini
 
 # Import waybar config
 mkdir -p /home/${USERNAME}/.config/waybar
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/waybar.config \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/waybar.config \
   -o /home/${USERNAME}/.config/waybar/config
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/waybar.style \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/waybar.style \
   -o /home/${USERNAME}/.config/waybar/style.css
 
 # Import wallpaper
@@ -258,7 +258,7 @@ apk add spotifyd spotify-tui
 # Configure spotifyd
 mkdir -p /home/${USERNAME}/.config/spotifyd
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/spotifyd \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/spotifyd \
   -o /home/${USERNAME}/.config/spotifyd/spotifyd.conf
 
 # Start spotifyd service when spotify-tui is launched
@@ -271,7 +271,7 @@ apk add neovim
 # Import configuration
 mkdir -p /home/${USERNAME}/.config/nvim
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/dotfiles/neovim \
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/neovim \
   -o /home/${USERNAME}/.config/nvim/init.lua
 
 # Bootstrap neovim
@@ -332,6 +332,14 @@ EOF
 cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
 
 rc-update add agetty-autologin.tty1 
+
+###### TLP
+apk add tlp
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tlp \
+  -o /etc/tlp.conf
+
+rc-update add tlp
 
 ##### Outro
 # Only enable networking service after boot
