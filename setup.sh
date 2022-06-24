@@ -29,7 +29,12 @@ adduser ${USERNAME} rtkit
 
 # Install common applications
 apk add htop bind-tools curl tar git upower jq openssh \
-  lm_sensors gzip p7zip unzip syncthing acpi acpi-utils cpupower
+  lm_sensors gzip p7zip unzip acpi acpi-utils cpupower
+
+# Install syncthing
+apk add syncthing syncthing-openrc
+
+rc-update add syncthing
 
 # Install fonts
 apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
@@ -340,6 +345,10 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tl
   -o /etc/tlp.conf
 
 rc-update add tlp
+
+###### WPA_SUPPLICANT
+# Configure connection with wpa_cli
+echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(cat todo.txt)" > /etc/wpa_supplicant/wpa_supplicant.conf
 
 ##### Outro
 # Only enable networking service after boot
