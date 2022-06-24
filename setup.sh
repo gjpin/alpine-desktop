@@ -373,3 +373,6 @@ su ${USERNAME} -c "xdg-user-dirs-update"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
+
+# Lock root account
+passwd -l root

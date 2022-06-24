@@ -2,8 +2,7 @@
 ```
 # Enable networking
 setup-interfaces
-rc-update add networking
-openrc default
+rc-service networking start
 
 # Download install script
 wget https://raw.githubusercontent.com/gjpin/alpine-desktop/main/install.sh
@@ -28,19 +27,6 @@ chmod +x setup.sh
 # Login as user
 ```
 
-xdg-open configuration:
-https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
-
-# Steam
-apk add steam-devices
-flatpak install --user com.valvesoftware.Steam
-
-
-qutebrowser flags:
-```
-qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
-```
-
 # Connect to wifi with wpa_cli:
 scan
 scan_results
@@ -49,3 +35,17 @@ set_network 0 ssid "ssid"
 set_network 0 psk "psk"
 enable_network 0
 save config
+
+# Steam
+apk add steam-devices
+flatpak install --user com.valvesoftware.Steam
+flatpak install --user com.valvesoftware.Steam.CompatibilityTool.Proton-GE
+flatpak override --filesystem=/mnt/data/games/steam --user com.valvesoftware.Steam
+
+xdg-open configuration:
+https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
+
+qutebrowser flags:
+```
+qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
+```
