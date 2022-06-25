@@ -25,6 +25,20 @@ chmod +x setup.sh
 # Reboot
 
 # Login as user
+
+# Bootstrap neovim
+nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+# Change npm default dir
+npm config set prefix '~/.npm-global'
+
+# Install language servers
+go install golang.org/x/tools/gopls@latest
+go install github.com/lighttiger2505/sqls@latest
+go install github.com/hashicorp/terraform-ls@latest
+npm install -g bash-language-server
+npm install -g typescript-language-server typescript
+npm install -g pyright
 ```
 
 # Connect to wifi with wpa_cli:

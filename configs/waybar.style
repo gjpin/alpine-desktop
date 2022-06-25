@@ -40,7 +40,7 @@ window#waybar.hidden {
     background-color: #eb4d4b;
 }
 
-#custom/clock,
+#custom-clock,
 #battery,
 #backlight,
 #network,

@@ -119,8 +119,6 @@ tee /home/${USERNAME}/.bashrc << 'EOF'
 export SHELL="/bin/bash"
 export EDITOR="nvim"
 export VISUAL="nvim"
-export GOPATH="~/go"
-export GOBIN="$GOPATH/bin"
 
 # Aliases
 alias sudo="doas"
@@ -130,7 +128,7 @@ alias vim="nvim"
 # Paths
 export PATH="~/.local/bin:$PATH"
 export PATH="~/.npm-global/bin:$PATH"
-export PATH="$GOPATH:$PATH"
+export PATH="~/go/bin:$PATH"
 
 # Helper functions
 EOF
@@ -193,8 +191,8 @@ adduser ${USERNAME} seat
 apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
   swayidle waybar grimshot bemenu wl-clipboard xrandr
 
-# Install ctl for backlight / audio / volume
-apk add light playerctl pactl
+# Install ctl for backlight / audio
+apk add light playerctl
 
 # Install terminal
 apk add foot
@@ -242,7 +240,6 @@ apk add go
 # Install nodejs/npm and change npm's default directory
 apk add nodejs-current npm
 mkdir /home/${USERNAME}/.npm-global
-su ${USERNAME} -c "npm config set prefix '~/.npm-global'"
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -279,20 +276,8 @@ mkdir -p /home/${USERNAME}/.config/nvim
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/neovim \
   -o /home/${USERNAME}/.config/nvim/init.lua
 
-# Bootstrap neovim
-su ${USERNAME} -c "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
-
-# Install language servers
-su ${USERNAME} -c "go install golang.org/x/tools/gopls@latest"
-su ${USERNAME} -c "go install github.com/lighttiger2505/sqls@latest"
-su ${USERNAME} -c "go install github.com/hashicorp/terraform-ls@latest"
-su ${USERNAME} -c "npm install -g bash-language-server"
-su ${USERNAME} -c "npm install -g typescript-language-server typescript"
-su ${USERNAME} -c "npm install -g pyright"
-
 # Add LSP updater helper to bash
 tee -a /home/${USERNAME}/.bashrc << EOF
-
 update_lsp(){
   go install golang.org/x/tools/gopls@latest
   go install github.com/lighttiger2505/sqls@latest
@@ -328,15 +313,15 @@ echo tun >>/etc/modules
 echo ${USERNAME}:100000:65536 >/etc/subuid
 echo ${USERNAME}:100000:65536 >/etc/subgid
 
-###### Enable autologin
-# https://wiki.gentoo.org/wiki/Automatic_login_to_virtual_console#openrc-init
-tee /etc/conf.d/agetty-autologin << EOF
-agetty_options="--autologin ${USERNAME} --noclear"
-EOF
+# ###### Enable autologin
+# # https://wiki.gentoo.org/wiki/Automatic_login_to_virtual_console#openrc-init
+# tee /etc/conf.d/agetty-autologin << EOF
+# agetty_options="--autologin ${USERNAME} --noclear"
+# EOF
 
-cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
+# cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
 
-rc-update add agetty-autologin.tty1 
+# rc-update add agetty-autologin.tty1 
 
 ###### TLP
 # If it's a laptop, install and configure TLP
@@ -349,7 +334,7 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tl
 rc-update add tlp
 fi
 
-##### Swap file
+##### Swap
 # Calculate swap size
 TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
 SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
@@ -361,12 +346,12 @@ mkswap -U clear /swapfile
 swapon /swapfile
 echo '/swapfile none swap defaults 0 0' >>/etc/fstab
 
+# Set swappiness
+echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
+
 ##### Outro
 # Configure connection with wpa_cli
-echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(cat todo.txt)" > /etc/wpa_supplicant/wpa_supplicant.conf
-
-# Disable networking service on boot (default is still available)
-rc-update del networking boot
+echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(/etc/wpa_supplicant/wpa_supplicant.conf)" > /etc/wpa_supplicant/wpa_supplicant.conf
 
 # Create all XDG directories
 su ${USERNAME} -c "xdg-user-dirs-update"
