@@ -41,15 +41,6 @@ npm install -g typescript-language-server typescript
 npm install -g pyright
 ```
 
-# Connect to wifi with wpa_cli:
-scan
-scan_results
-add_network
-set_network 0 ssid "ssid"
-set_network 0 psk "psk"
-enable_network 0
-save config
-
 # Steam
 apk add steam-devices
 flatpak install --user com.valvesoftware.Steam

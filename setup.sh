@@ -336,27 +336,12 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tl
 rc-update add tlp
 fi
 
-##### Swap
-# Calculate swap size
-# TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
-# SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
-
-# # Create swap file
-# dd if=/dev/zero of=/swapfile bs=1M count=${SWAP_SIZE_MB} status=progress
-# chmod 0600 /swapfile
-# mkswap -U clear /swapfile
-# swapon /swapfile
-# echo '/swapfile none swap defaults 0 0' >>/etc/fstab
-
-# # Start swap service
-# rc-update add swap boot
-
-# Set swappiness
-echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
-
 ##### Outro
 # Configure connection with wpa_cli
 echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(/etc/wpa_supplicant/wpa_supplicant.conf)" > /etc/wpa_supplicant/wpa_supplicant.conf
+
+# Set swappiness
+echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 
 # wifi helper
 tee -a /home/${USERNAME}/.bashrc << EOF
