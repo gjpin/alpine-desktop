@@ -14,7 +14,6 @@ echo "permit persist :wheel" >> /etc/doas.d/doas.conf
 # Create user directories
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
 mkdir -p /home/${USERNAME}/.local/share/themes
-mkdir -p /home/${USERNAME}/.local/bin
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 mkdir -p /home/${USERNAME}/Pictures/screenshots
 apk add xdg-user-dirs
@@ -29,7 +28,7 @@ adduser ${USERNAME} rtkit
 
 # Install common applications
 apk add htop bind-tools curl tar git upower jq openssh \
-  lm_sensors gzip p7zip unzip acpi acpi-utils cpupower
+  lm_sensors gzip p7zip unzip cpupower
 
 # Install syncthing
 apk add syncthing syncthing-openrc
@@ -116,19 +115,19 @@ EOF
 
 tee /home/${USERNAME}/.bashrc << 'EOF'
 # Environment variables
-export SHELL="/bin/bash"
 export EDITOR="nvim"
 export VISUAL="nvim"
+export GOPATH="$HOME/.go"
 
 # Aliases
 alias sudo="doas"
 alias vi="nvim"
 alias vim="nvim"
+alias ll="ls -la"
 
 # Paths
-export PATH="~/.local/bin:$PATH"
-export PATH="~/.npm-global/bin:$PATH"
-export PATH="~/go/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
 
 # Helper functions
 EOF
@@ -323,7 +322,10 @@ echo ${USERNAME}:100000:65536 >/etc/subgid
 
 # rc-update add agetty-autologin.tty1 
 
-###### TLP
+###### Power management
+# Install acpi and acpi-utils
+apk add acpi acpi-utils
+
 # If it's a laptop, install and configure TLP
 if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
 apk add tlp
@@ -336,15 +338,18 @@ fi
 
 ##### Swap
 # Calculate swap size
-TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
-SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
+# TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
+# SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
 
-# Create swap file
-dd if=/dev/zero of=/swapfile bs=1M count=${SWAP_SIZE_MB} status=progress
-chmod 0600 /swapfile
-mkswap -U clear /swapfile
-swapon /swapfile
-echo '/swapfile none swap defaults 0 0' >>/etc/fstab
+# # Create swap file
+# dd if=/dev/zero of=/swapfile bs=1M count=${SWAP_SIZE_MB} status=progress
+# chmod 0600 /swapfile
+# mkswap -U clear /swapfile
+# swapon /swapfile
+# echo '/swapfile none swap defaults 0 0' >>/etc/fstab
+
+# # Start swap service
+# rc-update add swap boot
 
 # Set swappiness
 echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
@@ -353,11 +358,29 @@ echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 # Configure connection with wpa_cli
 echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(/etc/wpa_supplicant/wpa_supplicant.conf)" > /etc/wpa_supplicant/wpa_supplicant.conf
 
+# wifi helper
+tee -a /home/${USERNAME}/.bashrc << EOF
+
+wifi_help(){
+  cat << EOF
+    wpa_cli
+    
+    scan
+    scan_results
+    add_network
+    set_network 0 ssid "ssid"
+    set_network 0 psk "psk"
+    enable_network 0
+    save config
+  EOF
+}
+EOF
+
 # Create all XDG directories
 su ${USERNAME} -c "xdg-user-dirs-update"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
 
-# Lock root account
-passwd -l root
+# # Lock root account
+# passwd -l root

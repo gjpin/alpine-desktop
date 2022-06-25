@@ -2,7 +2,8 @@ HOSTNAME=
 USERNAME=
 TIMEZONE=
 
-# Get network interface name
+TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
+SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
 NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F\/ '/pci/{print $NF}')
 
 tee ./answersfile << EOF
@@ -43,7 +44,7 @@ SSHDOPTS="-c none"
 NTPOPTS="-c chrony"
 
 # Use /dev/nvme0n1 as a data disk
-DISKOPTS="-e -m sys -k edge -s 0 /dev/nvme0n1"
+DISKOPTS="-e -m sys -k edge -s ${SWAP_SIZE_MB} -L /dev/nvme0n1"
 
 # Setup user
 USEROPTS="-a -g wheel,audio,video,netdev,input -f ${USERNAME} -k none ${USERNAME}"
