@@ -6,10 +6,10 @@ apk add mandoc man-pages docs
 # Change user password
 passwd ${USERNAME}
 
-# Install and configure doas
-apk add doas
-mkdir -p /etc/doas.d
-echo "permit persist :wheel" >> /etc/doas.d/doas.conf
+# # Install and configure doas
+# apk add doas
+# mkdir -p /etc/doas.d
+# echo "permit persist :wheel" >> /etc/doas.d/doas.conf
 
 # Create user directories
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
@@ -103,7 +103,7 @@ apk add shadow
 chsh --shell /bin/bash ${USERNAME}
 
 # bashrc
-tee /home/${USERNAME}/.bash_profile << EOF
+tee /home/${USERNAME}/.bash_profile << 'EOF'
 # Load sway
 [ "$(tty)" = "/dev/tty1" ] && dbus-launch --exit-with-session sway
 
@@ -289,12 +289,7 @@ EOF
 
 ##### Flatpak
 apk add flatpak
-
 adduser ${USERNAME} flatpak
-
-su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
-
-su ${USERNAME} -c "flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
 
 ##### Podman
 # Install podman
@@ -324,7 +319,7 @@ echo ${USERNAME}:100000:65536 >/etc/subgid
 
 ###### Power management
 # Install acpi and acpi-utils
-apk add acpi acpi-utils
+apk add acpi acpi-utils zzz
 
 # If it's a laptop, install and configure TLP
 if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
@@ -347,22 +342,17 @@ echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 tee -a /home/${USERNAME}/.bashrc << EOF
 
 wifi_help(){
-  cat << EOF
-    wpa_cli
-    
+  echo "wpa_cli
+  
     scan
     scan_results
     add_network
     set_network 0 ssid "ssid"
     set_network 0 psk "psk"
     enable_network 0
-    save config
-  EOF
+    save config"
 }
 EOF
-
-# Create all XDG directories
-su ${USERNAME} -c "xdg-user-dirs-update"
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}

@@ -26,6 +26,13 @@ chmod +x setup.sh
 
 # Login as user
 
+# Create all XDG directories
+xdg-user-dirs-update
+
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+
 # Bootstrap neovim
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
