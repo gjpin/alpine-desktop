@@ -124,6 +124,7 @@ alias sudo="doas"
 alias vi="nvim"
 alias vim="nvim"
 alias ll="ls -la"
+alias yt="ytfzf"
 
 # Paths
 export PATH="$HOME/.npm-global/bin:$PATH"
