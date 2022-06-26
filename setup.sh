@@ -265,6 +265,16 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/sp
 # Start spotifyd service when spotify-tui is launched
 # TODO
 
+##### ytfzf
+# Install ytfzf and dependencies
+apk add ytfzf fzf swayimg-full yt-dlp ncurses imagemagick
+
+# Configure ytfzf
+mkdir -p /home/${USERNAME}/.config/ytfzf
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/ytfzf \
+  -o /home/${USERNAME}/.config/ytfzf/conf.sh
+
 ##### neovim
 # Install neovim
 apk add neovim
