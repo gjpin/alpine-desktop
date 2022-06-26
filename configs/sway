@@ -162,10 +162,10 @@ bindsym --locked XF86MonBrightnessDown exec light -U 5
 
 ### Power
 # Suspend to ram on laptop lid close 
-bindswitch --reload --locked lid:on exec $lock && doas -u root zzz -z
+bindswitch --locked lid:on exec $lock && doas -u root zzz -z
 
 # Suspend to disk (hibernate) on power off button 
-bindsym XF86PowerOff exec $lock && doas -u root zzz -Z
+bindsym --locked XF86PowerOff exec $lock && doas -u root zzz -Z
 
 ### Outro
 # Borders and gaps

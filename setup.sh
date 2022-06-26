@@ -327,16 +327,6 @@ echo tun >>/etc/modules
 echo ${USERNAME}:100000:65536 >/etc/subuid
 echo ${USERNAME}:100000:65536 >/etc/subgid
 
-# ###### Enable autologin
-# # https://wiki.gentoo.org/wiki/Automatic_login_to_virtual_console#openrc-init
-# tee /etc/conf.d/agetty-autologin << EOF
-# agetty_options="--autologin ${USERNAME} --noclear"
-# EOF
-
-# cp /etc/init.d/agetty /etc/init.d/agetty-autologin.tty1
-
-# rc-update add agetty-autologin.tty1 
-
 ###### Power management
 # Install acpi and acpi-utils
 apk add acpi acpi-utils zzz
@@ -381,6 +371,9 @@ wifi_help(){
     save config"
 }
 EOF
+
+# Enable autologin
+# agetty --autologin ${USERNAME} --noclear     /etc/inittab
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
