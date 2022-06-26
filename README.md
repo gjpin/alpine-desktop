@@ -61,3 +61,24 @@ qutebrowser flags:
 ```
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
+
+
+# To use swap file instead of lvm + swap partition
+```
+##### Swap
+# Calculate swap size
+# TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
+# SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))
+
+# # Create swap file
+# dd if=/dev/zero of=/swapfile bs=1M count=${SWAP_SIZE_MB} status=progress
+# chmod 0600 /swapfile
+# mkswap -U clear /swapfile
+# swapon /swapfile
+# echo '/swapfile none swap defaults 0 0' >>/etc/fstab
+
+# # Start swap service
+# rc-update add swap boot
+
+https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#Hibernation_into_swap_file
+```
