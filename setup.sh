@@ -287,6 +287,9 @@ update_lsp(){
 }
 EOF
 
+# Install lua language server
+apk add lua-language-server
+
 ##### Flatpak
 apk add flatpak
 adduser ${USERNAME} flatpak
@@ -343,7 +346,7 @@ tee -a /home/${USERNAME}/.bashrc << EOF
 
 wifi_help(){
   echo "wpa_cli
-  
+
     scan
     scan_results
     add_network
