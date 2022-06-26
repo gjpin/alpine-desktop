@@ -61,3 +61,32 @@ qutebrowser flags:
 ```
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+/etc/doas.d/doas.conf
+permit nopass zero cmd zzz
+permit nopass zero cmd poweroff
+permit nopass zero cmd reboot
+
+bindswitch --reload --locked lid:off exec $lock && zzz
+bindsym XF86PowerOff exec $lock && zzz -Z
+
+
+
+swaymsg -t get_outputs
+
+set $laptop <laptop_output_identifier>
+bindswitch --reload --locked lid:on output $laptop disable
+
+
+
