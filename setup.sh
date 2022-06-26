@@ -6,10 +6,16 @@ apk add mandoc man-pages docs
 # Change user password
 passwd ${USERNAME}
 
-# # Install and configure doas
-# apk add doas
-# mkdir -p /etc/doas.d
-# echo "permit persist :wheel" >> /etc/doas.d/doas.conf
+# Install and configure doas
+apk add doas
+mkdir -p /etc/doas.d
+
+tee /etc/doas.d/doas.conf << EOF
+permit persist :wheel
+permit nopass ${USERNAME} cmd zzz
+permit nopass ${USERNAME} cmd poweroff
+permit nopass ${USERNAME} cmd reboot
+EOF
 
 # Create user directories
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
@@ -344,6 +350,14 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tl
 
 rc-update add tlp
 fi
+
+# Configure initramfs for hibernation
+sed -i 's|lvm|lvm resume|' /etc/mkinitfs/mkinitfs.conf
+mkinitfs
+
+# Add kernel parameters required for hibernation
+sed -i 's|cryptdm=root|cryptdm=root resume=/dev/vg0/lv_swap|' /etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
 
 ##### Outro
 # Configure connection with wpa_cli

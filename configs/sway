@@ -160,8 +160,12 @@ bindsym XF86AudioPrev exec playerctl previous
 bindsym --locked XF86MonBrightnessUp exec light -A 5
 bindsym --locked XF86MonBrightnessDown exec light -U 5
 
-# Power
-# bindsym XF86PowerOff exec
+### Power
+# Suspend to ram on laptop lid close 
+bindswitch --reload --locked lid:on exec $lock && doas -u root zzz -z
+
+# Suspend to disk (hibernate) on power off button 
+bindsym XF86PowerOff exec $lock && doas -u root zzz -Z
 
 ### Outro
 # Borders and gaps

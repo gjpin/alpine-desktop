@@ -29,9 +29,9 @@ chmod +x setup.sh
 # Create all XDG directories
 xdg-user-dirs-update
 
-flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 
 # Bootstrap neovim
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
@@ -50,9 +50,9 @@ npm install -g pyright
 
 # Steam
 apk add steam-devices
-flatpak install --user com.valvesoftware.Steam
-flatpak install --user com.valvesoftware.Steam.CompatibilityTool.Proton-GE
-flatpak override --filesystem=/mnt/data/games/steam --user com.valvesoftware.Steam
+flatpak install com.valvesoftware.Steam
+flatpak install com.valvesoftware.Steam.CompatibilityTool.Proton-GE
+flatpak override --filesystem=/mnt/data/games/steam com.valvesoftware.Steam
 
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
@@ -61,32 +61,3 @@ qutebrowser flags:
 ```
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-/etc/doas.d/doas.conf
-permit nopass zero cmd zzz
-permit nopass zero cmd poweroff
-permit nopass zero cmd reboot
-
-bindswitch --reload --locked lid:off exec $lock && zzz
-bindsym XF86PowerOff exec $lock && zzz -Z
-
-
-
-swaymsg -t get_outputs
-
-set $laptop <laptop_output_identifier>
-bindswitch --reload --locked lid:on output $laptop disable
-
-
-
