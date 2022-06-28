@@ -190,20 +190,18 @@ tee /etc/awall/private/base.json << EOF
      { "in": "LAN", "action": "drop" },
      { "out": "LAN", "action": "accept" },
      { "in": "_fw", "action": "accept" },
-     { "in": "_fw", "out":  "WAN" , "action": "accept" },
-     { "in": "WAN", "action": "drop" }
+     { "in": "_fw", "out":  "WAN" , "action": "accept" }
   ]
 }
-
 EOF
 
 tee /etc/awall/optional/syncthing.json << EOF
 {
-  "description": "Allow syncthing on WAN.",
+  "description": "Allow syncthing on LAN.",
 
   "filter": [
     {
-      "in": "WAN",
+      "in": "LAN",
       "out": "_fw",
       "service": { "proto": "tcp", "port": 22000 },
       "action": "accept",
@@ -213,6 +211,15 @@ tee /etc/awall/optional/syncthing.json << EOF
 }
 EOF
 
+tee /etc/awall/optional/main.json << EOF
+{
+  "description": "Main firewall",
+
+  "import": [ "base" ]
+}
+EOF
+
+awall enable main
 awall enable syncthing
 
 awall activate --force
