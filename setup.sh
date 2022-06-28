@@ -26,7 +26,7 @@ apk add xdg-user-dirs
 
 # Enable D-Bus session
 apk add dbus dbus-openrc dbus-x11
-rc-update add dbus
+rc-update add dbus boot
 
 # Enable realtime scheduling
 apk add rtkit
@@ -151,6 +151,71 @@ tee /etc/resolv.conf << EOF
 nameserver 1.1.1.1
 nameserver 1.0.0.1
 EOF
+
+# dhcpcd
+apk add dhcpcd dhcpcd-openrc
+rc-update add dhcpcd
+
+##### Firewall
+# Install and enable iptables services
+apk add iptables ip6tables
+
+rc-update add iptables
+rc-update add ip6tables
+
+rc-service start iptables
+rc-service start ip6tables
+
+# Load iptables modules
+modprobe ip_tables
+
+# Install awall
+apk add awall
+
+# Import default policy
+NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F\/ '/pci/{print $NF}')
+
+tee /etc/awall/private/base.json << EOF
+{
+  "description": "Base zones and policies",
+
+  "zone": {
+    "LAN": { "iface": "${NETWORK_INTERFACE_NAME}" },
+    "VPN": { "iface": "tailscale0" }
+  },
+
+  "policy": [
+     { "in": "VPN", "action": "drop" },
+     { "out": "VPN", "action": "accept" },
+     { "in": "LAN", "action": "drop" },
+     { "out": "LAN", "action": "accept" },
+     { "in": "_fw", "action": "accept" },
+     { "in": "_fw", "out":  "WAN" , "action": "accept" },
+     { "in": "WAN", "action": "drop" }
+  ]
+}
+
+EOF
+
+tee /etc/awall/optional/syncthing.json << EOF
+{
+  "description": "Allow syncthing on WAN.",
+
+  "filter": [
+    {
+      "in": "WAN",
+      "out": "_fw",
+      "service": { "proto": "tcp", "port": 22000 },
+      "action": "accept",
+      "conn-limit": { "count": 3, "interval": 20 }
+    }
+  ]
+}
+EOF
+
+awall enable syncthing
+
+awall activate --force
 
 ##### Alsa
 # https://wiki.alpinelinux.org/wiki/ALSA
@@ -328,8 +393,11 @@ echo ${USERNAME}:100000:65536 >/etc/subuid
 echo ${USERNAME}:100000:65536 >/etc/subgid
 
 ###### Power management
-# Install acpi and acpi-utils
-apk add acpi acpi-utils zzz
+# Install zzz
+apk add zzz
+
+# Confirm acpi is not overriding power off button
+rm -rf /etc/acpi/
 
 # If it's a laptop, install and configure TLP
 if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
