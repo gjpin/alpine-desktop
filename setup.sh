@@ -472,8 +472,12 @@ wifi_help(){
 }
 EOF
 
-# Enable autologin
-# agetty --autologin ${USERNAME} --noclear     /etc/inittab
+# Enable autologin on tty1
+sed -i 's|tty1::respawn:/sbin/getty|tty1::respawn:/sbin/agetty --autologin '${USERNAME}' --noclear|' /etc/inittab
+
+# Disable grub menu
+sed -i 's|GRUB_TIMEOUT=2|GRUB_TIMEOUT=0|' /etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
