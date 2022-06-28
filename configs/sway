@@ -12,7 +12,7 @@ set $right l
 set $term foot
 
 # Application launcher
-set $menu dmenu_path | bemenu -H 30 --fn "JetBrainsMono Nerd Font 10" --tb "#1e1e1e" --tf "#d4d4d4" --fb "#1e1e1e" --ff "#d4d4d4" --nb "#1e1e1e" --nf "#d4d4d4" --hb "#1e1e1e" --hf "#d4d4d4" --sb "#1e1e1e" --sf "#d4d4d4" --scb "#1e1e1e" --scf "#d4d4d4" | xargs swaymsg exec --
+set $menu dmenu_path | BEMENU_BACKEND=wayland bemenu-run -H 30 --fn "JetBrainsMono Nerd Font 10" --tb "#1e1e1e" --tf "#d4d4d4" --fb "#1e1e1e" --ff "#d4d4d4" --nb "#1e1e1e" --nf "#d4d4d4" --hb "#1e1e1e" --hf "#d4d4d4" --sb "#1e1e1e" --sf "#d4d4d4" --scb "#1e1e1e" --scf "#d4d4d4" | xargs swaymsg exec --
 
 # Wallpaper
 set $wallpaper ~/Pictures/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
@@ -162,10 +162,10 @@ bindsym --locked XF86MonBrightnessDown exec light -U 5
 
 ### Power
 # Suspend to ram on laptop lid close 
-bindswitch --locked lid:on exec $lock && doas -u root zzz -z
+bindswitch --locked lid:on exec $lock && doas zzz -z
 
 # Suspend to disk (hibernate) on power off button 
-bindsym --locked XF86PowerOff exec $lock && doas -u root zzz -Z
+bindsym --locked XF86PowerOff exec $lock && doas zzz -Z
 
 ### Outro
 # Borders and gaps
