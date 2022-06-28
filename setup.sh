@@ -177,50 +177,75 @@ NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F
 
 tee /etc/awall/private/base.json << EOF
 {
-  "description": "Base zones and policies",
-
-  "zone": {
-    "LAN": { "iface": "${NETWORK_INTERFACE_NAME}" },
-    "VPN": { "iface": "tailscale0" }
-  },
-
-  "policy": [
-     { "in": "VPN", "action": "drop" },
-     { "out": "VPN", "action": "accept" },
-     { "in": "LAN", "action": "drop" },
-     { "out": "LAN", "action": "accept" },
-     { "in": "_fw", "action": "accept" },
-     { "in": "_fw", "out":  "WAN" , "action": "accept" }
-  ]
+    "description": "Base zones and policies",
+    "zone": {
+        "LAN": {
+            "iface": "${NETWORK_INTERFACE_NAME}"
+        },
+        "VPN": {
+            "iface": "tailscale0"
+        }
+    },
+    "policy": [
+        {
+            "in": "VPN",
+            "action": "drop"
+        },
+        {
+            "out": "VPN",
+            "action": "accept"
+        },
+        {
+            "in": "LAN",
+            "action": "drop"
+        },
+        {
+            "out": "LAN",
+            "action": "accept"
+        },
+        {
+            "in": "_fw",
+            "action": "accept"
+        },
+        {
+            "in": "_fw",
+            "out": "LAN",
+            "action": "accept"
+        }
+    ]
 }
 EOF
 
-tee /etc/awall/optional/syncthing.json << EOF
+tee /etc/awall/private/custom-services.json << EOF
 {
-  "description": "Allow syncthing on LAN.",
-
-  "filter": [
-    {
-      "in": "LAN",
-      "out": "_fw",
-      "service": { "proto": "tcp", "port": 22000 },
-      "action": "accept",
-      "conn-limit": { "count": 3, "interval": 20 }
+    "service": {
+        "tailscale": [
+            {
+                "proto": "udp",
+                "port": 41641
+            }
+        ],
+        "syncthing": [
+            {
+                "proto": "tcp",
+                "port": 22000
+            }
+        ]
     }
-  ]
 }
 EOF
 
 tee /etc/awall/optional/main.json << EOF
 {
-  "description": "Main firewall",
-
-  "import": [ "base" ]
+    "description": "Main firewall",
+    "import": [
+        "base",
+        "custom-services"
+    ]
 }
 EOF
 
 awall enable main
-awall enable syncthing
 
 awall activate --force
 
