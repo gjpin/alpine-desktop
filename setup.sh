@@ -104,7 +104,7 @@ EOF
 
 ##### zsh / shell
 # Install zsh and shellcheck
-apk add zsh zsh-completions shellcheck
+apk add zsh zsh-completions oh-my-zsh shellcheck
 
 # Change default shell for root
 chsh --shell /bin/zsh root
@@ -125,6 +125,12 @@ fi
 EOF
 
 tee /home/${USERNAME}/.zshrc << 'EOF'
+# Oh My Zsh
+export ZSH="/usr/share/oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git)
+source $ZSH/oh-my-zsh.sh
+
 # Go
 export GOPATH="$HOME/.go"
 export PATH="$GOPATH/bin:$PATH"
