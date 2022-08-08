@@ -429,9 +429,9 @@ adduser ${USERNAME} flatpak
 ##### VSCode
 apk add code-oss code-oss-zsh-completion
 
-mkdir -p "${HOME}/.config/Code - OSS/User"
+mkdir -p "/home/${USERNAME}/.config/Code - OSS/User"
 
-tee "${HOME}/.config/Code - OSS/User/settings.json" << EOF
+tee "/home/${USERNAME}/.config/Code - OSS/User/settings.json" << EOF
 {
     "telemetry.telemetryLevel": "off",
     "window.menuBarVisibility": "toggle",
@@ -463,6 +463,17 @@ apk add godot blender gimp
 
 ##### Common packages
 apk add firefox gcompat
+
+apk add thunar thunar-archive-plugin xarchiver \
+    mousepad adw-gtk3 adwaita-xfce-icon-theme
+
+mkdir -p /home/${USERNAME}/.config/gtk-3.0
+tee -a /home/${USERNAME}/.config/gtk-3.0/settings.ini << EOF
+[Settings]
+gtk-theme-name = adw-gtk3
+gtk-icon-theme-name = Adwaita
+gtk-font-name = CaskaydiaCove Nerd Font
+EOF
 
 # ##### Podman
 # # Install podman
