@@ -144,6 +144,9 @@ export VISUAL="nvim"
 alias vi="nvim"
 alias vim="nvim"
 
+# VSCode
+alias code="code-oss"
+
 # Other
 alias sudo="doas"
 alias ll="ls -la"
@@ -426,10 +429,34 @@ adduser ${USERNAME} flatpak
 ##### VSCode
 apk add code-oss code-oss-zsh-completion
 
-code --install-extension golang.Go
-code --install-extension dbaeumer.vscode-eslint
-code --install-extension ms-python.python
-code --install-extension geequlim.godot-tools
+mkdir -p "${HOME}/.config/Code - OSS/User"
+
+tee "${HOME}/.config/Code - OSS/User/settings.json" << EOF
+{
+    "telemetry.telemetryLevel": "off",
+    "window.menuBarVisibility": "toggle",
+    "workbench.startupEditor": "none",
+    "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Noto Sans Mono', 'Droid Sans Mono', 'monospace', 'Droid Sans Fallback'",
+    "workbench.enableExperiments": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    "workbench.iconTheme": null,
+    "workbench.tree.indent": 12,
+    "files.associations": {
+        "*.j2": "terraform",
+        "*.hcl": "terraform",
+        "*.bu": "yaml",
+        "*.ign": "json",
+        "*.service": "ini"
+    },
+    "extensions.ignoreRecommendations": true,
+    "editor.formatOnSave": true
+}
+EOF
+
+code-oss --install-extension golang.Go
+code-oss --install-extension dbaeumer.vscode-eslint
+code-oss --install-extension ms-python.python
+code-oss --install-extension geequlim.godot-tools
 
 ##### 2D/3D software
 apk add godot blender gimp
