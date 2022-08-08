@@ -1,6 +1,6 @@
-HOSTNAME=
-USERNAME=
-TIMEZONE=
+read -p "Hostname: " HOSTNAME
+read -p "Username: " USERNAME
+read -p "Timezone: " TIMEZONE
 
 TOTAL_MEM_GB=$(free -g | grep Mem: | awk '{print $2}')
 SWAP_SIZE_MB=$((($TOTAL_MEM_GB + 1) * 1024))

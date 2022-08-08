@@ -12,10 +12,10 @@ set $right l
 set $term foot
 
 # Application launcher
-set $menu dmenu_path | BEMENU_BACKEND=wayland bemenu-run -H 30 --fn "JetBrainsMono Nerd Font 10" --tb "#1e1e1e" --tf "#d4d4d4" --fb "#1e1e1e" --ff "#d4d4d4" --nb "#1e1e1e" --nf "#d4d4d4" --hb "#1e1e1e" --hf "#d4d4d4" --sb "#1e1e1e" --sf "#d4d4d4" --scb "#1e1e1e" --scf "#d4d4d4" | xargs swaymsg exec --
+set $menu dmenu_path | BEMENU_BACKEND=wayland bemenu-run -H 30 --fn "CascadiaCode Nerd Font 10" --tb "#1e1e1e" --tf "#d4d4d4" --fb "#1e1e1e" --ff "#d4d4d4" --nb "#1e1e1e" --nf "#d4d4d4" --hb "#1e1e1e" --hf "#d4d4d4" --sb "#1e1e1e" --sf "#d4d4d4" --scb "#1e1e1e" --scf "#d4d4d4" | xargs swaymsg exec --
 
 # Wallpaper
-set $wallpaper ~/Pictures/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
+set $wallpaper ~/Pictures/wallpapers/wallpaper2.jpg
 
 # Lock
 set $lock swaylock -f -i $wallpaper

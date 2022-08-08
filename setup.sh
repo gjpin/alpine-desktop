@@ -1,4 +1,4 @@
-USERNAME=
+read -p "Username: " USERNAME
 
 # Install man pages
 apk add mandoc man-pages docs
@@ -8,6 +8,7 @@ passwd ${USERNAME}
 
 # Install and configure doas
 apk add doas
+
 mkdir -p /etc/doas.d
 
 tee /etc/doas.d/doas.conf << EOF
@@ -18,11 +19,12 @@ permit nopass ${USERNAME} cmd reboot
 EOF
 
 # Create user directories
+apk add xdg-user-dirs
+xdg-user-dirs-update
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
 mkdir -p /home/${USERNAME}/.local/share/themes
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
 mkdir -p /home/${USERNAME}/Pictures/screenshots
-apk add xdg-user-dirs
 
 # Enable D-Bus session
 apk add dbus dbus-openrc dbus-x11
@@ -42,7 +44,7 @@ apk add syncthing syncthing-openrc
 rc-update add syncthing
 
 # Install fonts
-apk add ttf-dejavu font-jetbrains-mono-nerd font-iosevka-nerd
+apk add ttf-dejavu font-cascadia-code-nerd font-jetbrains-mono-nerd font-iosevka-nerd
 
 # Install shell utilities
 apk add util-linux pciutils usbutils coreutils binutils findutils grep iproute2
@@ -89,7 +91,7 @@ if lspci | grep VGA | grep "Intel" > /dev/null; then
  apk add intel-media-driver
 fi
 
-# Install mpv and enable HW acceleration
+# Install and configure mpv
 apk add mpv
 
 mkdir -p /home/${USERNAME}/.config/mpv
@@ -100,43 +102,46 @@ hwdec=vaapi
 vo=gpu
 EOF
 
-##### bash
-# Install bash and shellcheck
-apk add bash bash-completion shellcheck
+##### zsh / shell
+# Install zsh and shellcheck
+apk add zsh zsh-completions shellcheck
 
-# Change default bash for user
+# Change default shell for root
+chsh --shell /bin/zsh root
+
+# Change default shell for user
 apk add shadow
-chsh --shell /bin/bash ${USERNAME}
+chsh --shell /bin/zsh ${USERNAME}
 
-# bashrc
-tee /home/${USERNAME}/.bash_profile << 'EOF'
+# zshrc
+tee /home/${USERNAME}/.zprofile << 'EOF'
 # Load sway
 [ "$(tty)" = "/dev/tty1" ] && dbus-launch --exit-with-session sway
 
-# Load .bashrc
-if [ -f ~/.bashrc ]; then
-    . ~/.bashrc
+# Load .zshrc
+if [ -f ~/.zshrc ]; then
+    . ~/.zshrc
 fi
 EOF
 
-tee /home/${USERNAME}/.bashrc << 'EOF'
-# Environment variables
-export EDITOR="nvim"
-export VISUAL="nvim"
+tee /home/${USERNAME}/.zshrc << 'EOF'
+# Go
 export GOPATH="$HOME/.go"
-
-# Aliases
-alias sudo="doas"
-alias vi="nvim"
-alias vim="nvim"
-alias ll="ls -la"
-alias yt="ytfzf"
-
-# Paths
-export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
 
-# Helper functions
+# Node / npm
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# Neovim
+export EDITOR="nvim"
+export VISUAL="nvim"
+alias vi="nvim"
+alias vim="nvim"
+
+# Other
+alias sudo="doas"
+alias ll="ls -la"
+alias yt="ytfzf"
 EOF
 
 ##### Networking
@@ -328,7 +333,10 @@ curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/wa
 mkdir -p /home/${USERNAME}/Pictures/wallpapers
 
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg \
-  -o /home/${USERNAME}/Pictures/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg
+  -o /home/${USERNAME}/Pictures/wallpapers/wallpaper1.jpg
+
+curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/wallhaven-96woj1.jpg \
+  -o /home/${USERNAME}/Pictures/wallpapers/wallpaper2.jpg
 
 # Install qutebrowser and additional libraries
 apk add qutebrowser py3-adblock py3-pygments pdfjs
@@ -342,7 +350,10 @@ apk add go
 
 # Install nodejs/npm and change npm's default directory
 apk add nodejs-current npm
+
 mkdir /home/${USERNAME}/.npm-global
+
+npm config set prefix "/home/${USERNAME}/.npm-global"
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -389,8 +400,10 @@ mkdir -p /home/${USERNAME}/.config/nvim
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/neovim \
   -o /home/${USERNAME}/.config/nvim/init.lua
 
-# Add LSP updater helper to bash
-tee -a /home/${USERNAME}/.bashrc << EOF
+# Add LSP updater helper to zshrc
+tee -a /home/${USERNAME}/.zshrc << EOF
+
+# Update LSP
 update_lsp(){
   go install golang.org/x/tools/gopls@latest
   go install github.com/lighttiger2505/sqls@latest
@@ -408,21 +421,35 @@ apk add lua-language-server
 apk add flatpak
 adduser ${USERNAME} flatpak
 
-##### Podman
-# Install podman
-apk add podman
+##### VSCode
+apk add code-oss code-oss-zsh-completion
 
-# Enable cgroups v2
-sed -i 's|#rc_cgroup_mode="hybrid"|rc_cgroup_mode="unified"|' /etc/rc.conf
+code --install-extension golang.Go
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension ms-python.python
+code --install-extension geequlim.godot-tools
 
-# Enable cgroups service
-rc-update add cgroups
+##### 2D/3D software
+apk add godot blender gimp
 
-# Enable rootless support
-modprobe tun
-echo tun >>/etc/modules
-echo ${USERNAME}:100000:65536 >/etc/subuid
-echo ${USERNAME}:100000:65536 >/etc/subgid
+##### Common packages
+apk add firefox gcompat
+
+# ##### Podman
+# # Install podman
+# apk add podman
+
+# # Enable cgroups v2
+# sed -i 's|#rc_cgroup_mode="hybrid"|rc_cgroup_mode="unified"|' /etc/rc.conf
+
+# # Enable cgroups service
+# rc-update add cgroups
+
+# # Enable rootless support
+# modprobe tun
+# echo tun >>/etc/modules
+# echo ${USERNAME}:100000:65536 >/etc/subuid
+# echo ${USERNAME}:100000:65536 >/etc/subgid
 
 ###### Power management
 # Install zzz
@@ -432,14 +459,14 @@ apk add zzz
 rm -rf /etc/acpi/
 
 # If it's a laptop, install and configure TLP
-if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
-apk add tlp
+# if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
+# apk add tlp
 
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tlp \
-  -o /etc/tlp.conf
+# curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/tlp \
+#   -o /etc/tlp.conf
 
-rc-update add tlp
-fi
+# rc-update add tlp
+# fi
 
 # Configure initramfs for hibernation
 sed -i 's|lvm|lvm resume|' /etc/mkinitfs/mkinitfs.conf
@@ -457,8 +484,9 @@ echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(
 echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 
 # wifi helper
-tee -a /home/${USERNAME}/.bashrc << EOF
+tee -a /home/${USERNAME}/.zshrc << EOF
 
+# Wifi helper
 wifi_help(){
   echo "wpa_cli
 
@@ -482,5 +510,21 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
 
-# # Lock root account
-# passwd -l root
+doas -u ${USERNAME} /bin/zsh << 'EOF'
+    # Create common user directories
+    xdg-user-dirs-update
+
+    # Add Flathub remote
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    
+    # Bootstrap neovim
+    nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+    # Install language servers
+    go install golang.org/x/tools/gopls@latest
+    go install github.com/lighttiger2505/sqls@latest
+    go install github.com/hashicorp/terraform-ls@latest
+    npm install -g bash-language-server
+    npm install -g typescript-language-server typescript
+    npm install -g pyright
+EOF

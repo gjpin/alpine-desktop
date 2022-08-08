@@ -50,9 +50,11 @@ npm install -g pyright
 
 # Steam
 apk add steam-devices
-flatpak install com.valvesoftware.Steam
-flatpak install com.valvesoftware.Steam.CompatibilityTool.Proton-GE
+flatpak install -y com.valvesoftware.Steam
 flatpak override --filesystem=/mnt/data/games/steam com.valvesoftware.Steam
+flatpak install -y com.valvesoftware.Steam.CompatibilityTool.Proton-GE
+flatpak install -y flathub com.valvesoftware.Steam.Utility.gamescope
+flatpak install -y flathub org.freedesktop.Platform.VulkanLayer.MangoHud
 
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
