@@ -145,21 +145,17 @@ alias yt="ytfzf"
 EOF
 
 ##### Networking
-# Avoid overwriting resolv.conf by DHCP
-mkdir -p /etc/udhcpc
-tee /etc/udhcpc/udhcpc.conf << EOF
-RESOLV_CONF="NO"
-EOF
+# # Avoid overwriting resolv.conf by DHCP
+# mkdir -p /etc/udhcpc
+# tee /etc/udhcpc/udhcpc.conf << EOF
+# RESOLV_CONF="NO"
+# EOF
 
-# Configure Cloudflare DNS servers
-tee /etc/resolv.conf << EOF
-nameserver 1.1.1.1
-nameserver 1.0.0.1
-EOF
-
-# dhcpcd
-apk add dhcpcd dhcpcd-openrc
-rc-update add dhcpcd
+# # Configure Cloudflare DNS servers
+# tee /etc/resolv.conf << EOF
+# nameserver 1.1.1.1
+# nameserver 1.0.0.1
+# EOF
 
 ##### Firewall
 # Install and enable iptables services
@@ -168,8 +164,8 @@ apk add iptables ip6tables
 rc-update add iptables
 rc-update add ip6tables
 
-rc-service start iptables
-rc-service start ip6tables
+rc-service iptables start
+rc-service ip6tables start
 
 # Load iptables modules
 modprobe ip_tables
@@ -484,7 +480,7 @@ echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(
 echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 
 # wifi helper
-tee -a /home/${USERNAME}/.zshrc << EOF
+tee -a /home/${USERNAME}/.zshrc << 'EOF'
 
 # Wifi helper
 wifi_help(){
@@ -509,22 +505,3 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
-
-doas -u ${USERNAME} /bin/zsh << 'EOF'
-    # Create common user directories
-    xdg-user-dirs-update
-
-    # Add Flathub remote
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    
-    # Bootstrap neovim
-    nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-
-    # Install language servers
-    go install golang.org/x/tools/gopls@latest
-    go install github.com/lighttiger2505/sqls@latest
-    go install github.com/hashicorp/terraform-ls@latest
-    npm install -g bash-language-server
-    npm install -g typescript-language-server typescript
-    npm install -g pyright
-EOF
