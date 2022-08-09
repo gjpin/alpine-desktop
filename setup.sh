@@ -464,16 +464,23 @@ apk add godot blender gimp
 ##### Common packages
 apk add firefox gcompat
 
-apk add thunar thunar-archive-plugin xarchiver \
-    mousepad adw-gtk3 adwaita-xfce-icon-theme
+##### GTK apps and settings
+apk add nautilus file-roller \
+    gnome-text-editor \
+    gnome-calculator \
+    adw-gtk3 adwaita-icon-theme
 
 mkdir -p /home/${USERNAME}/.config/gtk-3.0
 tee -a /home/${USERNAME}/.config/gtk-3.0/settings.ini << EOF
 [Settings]
 gtk-theme-name = adw-gtk3
 gtk-icon-theme-name = Adwaita
-gtk-font-name = CaskaydiaCove Nerd Font
 EOF
+
+# firefox-gnome-theme
+git clone https://github.com/rafaelmardojai/firefox-gnome-theme && cd firefox-gnome-theme
+./scripts/install.sh
+cd .. && rm -rf firefox-gnome-theme/
 
 # ##### Podman
 # # Install podman
