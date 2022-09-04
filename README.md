@@ -47,18 +47,26 @@ nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 ```
 
 # Steam
+```
 apk add steam-devices
 flatpak install -y com.valvesoftware.Steam
 flatpak override --filesystem=/mnt/data/games/steam com.valvesoftware.Steam
 flatpak install -y com.valvesoftware.Steam.CompatibilityTool.Proton-GE
 flatpak install -y flathub com.valvesoftware.Steam.Utility.gamescope
 flatpak install -y flathub org.freedesktop.Platform.VulkanLayer.MangoHud
+```
+
+# outro / todo
+```
+remove lvm
+
+check xfce:
+https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
 
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
 
 qutebrowser flags:
-```
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
 

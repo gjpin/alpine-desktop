@@ -14,7 +14,7 @@ KEYMAPOPTS="us us"
 HOSTNAMEOPTS="-n ${HOSTNAME}"
 
 # Set device manager to udev
-DEVDOPTS="udev"
+DEVDOPTS="-C mdevd"
 
 # Contents of /etc/network/interfaces
 INTERFACESOPTS="auto lo
