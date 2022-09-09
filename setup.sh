@@ -28,7 +28,7 @@ mkdir -p /home/${USERNAME}/Pictures/screenshots
 
 # Enable D-Bus session
 apk add dbus dbus-openrc dbus-x11
-rc-update add dbus boot
+rc-update add dbus
 
 # Enable realtime scheduling
 apk add rtkit

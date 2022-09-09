@@ -56,13 +56,25 @@ flatpak install -y flathub com.valvesoftware.Steam.Utility.gamescope
 flatpak install -y flathub org.freedesktop.Platform.VulkanLayer.MangoHud
 ```
 
+# KDE
+```
+# Setup system to use Xorg
+# https://github.com/alpinelinux/alpine-conf/blob/master/setup-xorg-base.in
+apk add xorg-server xf86-input-libinput eudev mesa
+
+# Install Plasma and enable services
+# https://wiki.alpinelinux.org/wiki/KDE
+# https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
+apk add plasma kde-applications-base elogind polkit-elogind dbus
+
+rc-update add elogind
+rc-update add polkit
+rc-update add udev
+rc-update add sddm
+```
+
 # outro / todo
 ```
-remove lvm
-
-check xfce:
-https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
-
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
 
