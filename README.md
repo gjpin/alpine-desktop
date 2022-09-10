@@ -76,9 +76,15 @@ rc-update add sddm
 tee -a /etc/default/grub << EOF
 GRUB_THEME=/usr/share/grub/themes/breeze
 GRUB_GFXMODE=1920x1080
+GRUB_GFXPAYLOAD_LINUX=keep
 EOF
 
 grub-mkconfig -o /boot/grub/grub.cfg
+
+# plymouth (WIP)
+apk add plymouth
+plymouth-set-default-theme breeze
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|& quiet splash|' cenas
 
 # overview with meta key
 kwriteconfig5 --file kwinrc --group ModifierOnlyShortcuts --key Meta "org.kde.kglobalaccel,/component/kwin,,invokeShortcut,Overview
