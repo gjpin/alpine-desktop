@@ -65,7 +65,7 @@ apk add xorg-server xf86-input-libinput
 # Install Plasma and enable services
 # https://wiki.alpinelinux.org/wiki/KDE
 # https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
-apk add plasma kde-applications-base elogind polkit-elogind
+apk add plasma plasma-extras kde-applications-base elogind polkit-elogind
 
 rc-update add elogind
 rc-update add polkit
