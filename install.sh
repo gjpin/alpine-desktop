@@ -31,7 +31,7 @@ iface ${NETWORK_INTERFACE_NAME} inet dhcp
 
 # DNS
 # https://github.com/alpinelinux/alpine-conf/blob/master/setup-dns.in#L7
-DNSOPTS="-n 1.1.1.1 1.0.0.1"
+# DNSOPTS="-n 1.1.1.1 1.0.0.1"
 
 # Set timezone
 # https://github.com/alpinelinux/alpine-conf/blob/master/setup-timezone.in#L9

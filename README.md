@@ -60,17 +60,20 @@ flatpak install -y flathub org.freedesktop.Platform.VulkanLayer.MangoHud
 ```
 # Setup system to use Xorg
 # https://github.com/alpinelinux/alpine-conf/blob/master/setup-xorg-base.in
-apk add xorg-server xf86-input-libinput eudev mesa
+apk add xorg-server xf86-input-libinput
 
 # Install Plasma and enable services
 # https://wiki.alpinelinux.org/wiki/KDE
 # https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
-apk add plasma kde-applications-base elogind polkit-elogind dbus
+apk add plasma kde-applications-base elogind polkit-elogind
 
 rc-update add elogind
 rc-update add polkit
 rc-update add udev
 rc-update add sddm
+
+# overview with meta key
+kwriteconfig5 --file kwinrc --group ModifierOnlyShortcuts --key Meta "org.kde.kglobalaccel,/component/kwin,,invokeShortcut,Overview
 ```
 
 # outro / todo
