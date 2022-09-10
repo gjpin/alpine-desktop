@@ -13,18 +13,12 @@ mkdir -p /etc/doas.d
 
 tee /etc/doas.d/doas.conf << EOF
 permit persist :wheel
-permit nopass ${USERNAME} cmd zzz
-permit nopass ${USERNAME} cmd poweroff
-permit nopass ${USERNAME} cmd reboot
 EOF
 
 # Create user directories
 apk add xdg-user-dirs
-xdg-user-dirs-update
 mkdir -p /home/${USERNAME} && chmod 700 /home/${USERNAME}
-mkdir -p /home/${USERNAME}/.local/share/themes
 mkdir -p /home/${USERNAME}/.ssh && chmod 700 /home/${USERNAME}/.ssh/
-mkdir -p /home/${USERNAME}/Pictures/screenshots
 
 # Enable D-Bus session
 apk add dbus dbus-openrc dbus-x11
@@ -72,7 +66,7 @@ fi
 # Install mesa drivers
 apk add mesa-dri-gallium
 
-# Enable vulkan
+# Install vulkan packages
 apk add vulkan-tools
 
 if lspci | grep VGA | grep "Intel" > /dev/null; then
@@ -115,9 +109,6 @@ chsh --shell /bin/zsh ${USERNAME}
 
 # zshrc
 tee /home/${USERNAME}/.zprofile << 'EOF'
-# Load sway
-[ "$(tty)" = "/dev/tty1" ] && dbus-launch --exit-with-session sway
-
 # Load .zshrc
 if [ -f ~/.zshrc ]; then
     . ~/.zshrc
@@ -147,117 +138,115 @@ alias vim="nvim"
 # VSCode
 alias code="code-oss"
 
+# Updater helper
+update-all() {
+  # Update system packages
+  doas apk upgrade -U
+
+  # Update Flatpak apps
+  flatpak update -y
+  
+  # Update Node.js global packages
+  npm update -g
+}
+
 # Other
 alias sudo="doas"
 alias ll="ls -la"
-alias yt="ytfzf"
 EOF
 
-##### Networking
-# # Avoid overwriting resolv.conf by DHCP
-# mkdir -p /etc/udhcpc
-# tee /etc/udhcpc/udhcpc.conf << EOF
-# RESOLV_CONF="NO"
+# ##### Firewall
+# # Install and enable iptables services
+# apk add iptables ip6tables
+
+# rc-update add iptables
+# rc-update add ip6tables
+
+# rc-service iptables start
+# rc-service ip6tables start
+
+# # Load iptables modules
+# modprobe ip_tables
+
+# # Install awall
+# apk add awall
+
+# # Import default policy
+# NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F\/ '/pci/{print $NF}')
+
+# tee /etc/awall/private/base.json << EOF
+# {
+#     "description": "Base zones and policies",
+#     "zone": {
+#         "LAN": {
+#             "iface": "${NETWORK_INTERFACE_NAME}"
+#         },
+#         "VPN": {
+#             "iface": "tailscale0"
+#         }
+#     },
+#     "policy": [
+#         {
+#             "in": "VPN",
+#             "action": "drop"
+#         },
+#         {
+#             "out": "VPN",
+#             "action": "accept"
+#         },
+#         {
+#             "in": "LAN",
+#             "action": "drop"
+#         },
+#         {
+#             "out": "LAN",
+#             "action": "accept"
+#         },
+#         {
+#             "in": "_fw",
+#             "action": "accept"
+#         },
+#         {
+#             "in": "_fw",
+#             "out": "LAN",
+#             "action": "accept"
+#         }
+#     ]
+# }
 # EOF
 
-# # Configure Cloudflare DNS servers
-# tee /etc/resolv.conf << EOF
-# nameserver 1.1.1.1
-# nameserver 1.0.0.1
+# tee /etc/awall/private/custom-services.json << EOF
+# {
+#     "service": {
+#         "tailscale": [
+#             {
+#                 "proto": "udp",
+#                 "port": 41641
+#             }
+#         ],
+#         "syncthing": [
+#             {
+#                 "proto": "tcp",
+#                 "port": 22000
+#             }
+#         ]
+#     }
+# }
 # EOF
 
-##### Firewall
-# Install and enable iptables services
-apk add iptables ip6tables
+# tee /etc/awall/optional/main.json << EOF
+# {
+#     "description": "Main firewall",
+#     "import": [
+#         "base",
+#         "custom-services"
+#     ]
+# }
+# EOF
 
-rc-update add iptables
-rc-update add ip6tables
+# awall enable main
 
-rc-service iptables start
-rc-service ip6tables start
-
-# Load iptables modules
-modprobe ip_tables
-
-# Install awall
-apk add awall
-
-# Import default policy
-NETWORK_INTERFACE_NAME=$(find /sys/class/net ! -type d | xargs realpath | awk -F\/ '/pci/{print $NF}')
-
-tee /etc/awall/private/base.json << EOF
-{
-    "description": "Base zones and policies",
-    "zone": {
-        "LAN": {
-            "iface": "${NETWORK_INTERFACE_NAME}"
-        },
-        "VPN": {
-            "iface": "tailscale0"
-        }
-    },
-    "policy": [
-        {
-            "in": "VPN",
-            "action": "drop"
-        },
-        {
-            "out": "VPN",
-            "action": "accept"
-        },
-        {
-            "in": "LAN",
-            "action": "drop"
-        },
-        {
-            "out": "LAN",
-            "action": "accept"
-        },
-        {
-            "in": "_fw",
-            "action": "accept"
-        },
-        {
-            "in": "_fw",
-            "out": "LAN",
-            "action": "accept"
-        }
-    ]
-}
-EOF
-
-tee /etc/awall/private/custom-services.json << EOF
-{
-    "service": {
-        "tailscale": [
-            {
-                "proto": "udp",
-                "port": 41641
-            }
-        ],
-        "syncthing": [
-            {
-                "proto": "tcp",
-                "port": 22000
-            }
-        ]
-    }
-}
-EOF
-
-tee /etc/awall/optional/main.json << EOF
-{
-    "description": "Main firewall",
-    "import": [
-        "base",
-        "custom-services"
-    ]
-}
-EOF
-
-awall enable main
-
-awall activate --force
+# awall activate --force
 
 ##### Alsa
 # https://wiki.alpinelinux.org/wiki/ALSA
@@ -276,89 +265,27 @@ rc-update add alsa
 
 # Install pipewire/wireplumber
 apk add pipewire wireplumber pipewire-alsa pipewire-pulse \
-  pipewire-spa-bluez pipewire-tools pipewire-spa-vulkan gst-plugin-pipewire \
-  pavucontrol pulseaudio-utils
+  pipewire-spa-bluez pipewire-tools pipewire-spa-vulkan gst-plugin-pipewire
 
 # Enable snd_seq kernel module
 modprobe snd_seq
 echo snd_seq >> /etc/modules
-
-##### Sway
-# Set XDG_RUNTIME_DIR variable
-tee /etc/profile.d/xdg_runtime_dir.sh << 'EOF'
-if test -z "${XDG_RUNTIME_DIR}"; then
-  export XDG_RUNTIME_DIR=/tmp/$(id -u)-runtime-dir
-  if ! test -d "${XDG_RUNTIME_DIR}"; then
-    mkdir "${XDG_RUNTIME_DIR}"
-    chmod 0700 "${XDG_RUNTIME_DIR}"
-  fi
-fi
-EOF
-
-# Setup seatd daemon
-apk add seatd
-rc-update add seatd
-adduser ${USERNAME} seat
-
-# Install sway and related packages
-apk add sway xwayland xdg-desktop-portal-wlr swaylock swaybg \
-  swayidle waybar grimshot bemenu wl-clipboard xrandr
-
-# Install ctl for backlight / audio
-apk add light playerctl
-
-# Install terminal
-apk add foot
-
-# Install ranger and libsixel (file manager and sixel implementation)
-apk add ranger libsixel
-
-# Import sway config
-mkdir -p /home/${USERNAME}/.config/sway
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/sway \
-  -o /home/${USERNAME}/.config/sway/config
-
-# Import foot config
-mkdir -p /home/${USERNAME}/.config/foot
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/foot \
-  -o /home/${USERNAME}/.config/foot/foot.ini
-
-# Import waybar config
-mkdir -p /home/${USERNAME}/.config/waybar
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/waybar.config \
-  -o /home/${USERNAME}/.config/waybar/config
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/waybar.style \
-  -o /home/${USERNAME}/.config/waybar/style.css
-
-# Import wallpaper
-mkdir -p /home/${USERNAME}/Pictures/wallpapers
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/snowy-peak-flat-mountains-minimal-4k-it-2560x1440.jpg \
-  -o /home/${USERNAME}/Pictures/wallpapers/wallpaper1.jpg
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/wallpapers/wallhaven-96woj1.jpg \
-  -o /home/${USERNAME}/Pictures/wallpapers/wallpaper2.jpg
-
-# Install qutebrowser and additional libraries
-apk add qutebrowser py3-adblock py3-pygments pdfjs
 
 ##### Development
 # Build tools
 apk add build-base meson samurai clang
 
 # Install go
-apk add go
+apk add go gopls
 
 # Install nodejs/npm and change npm's default directory
-apk add nodejs-current npm
+apk add nodejs npm
 
 mkdir /home/${USERNAME}/.npm-global
 
-npm config set prefix "/home/${USERNAME}/.npm-global"
+tee /home/${USERNAME}/.npmrc << EOF
+prefix=/home/${USERNAME}/.npm-global
+EOF
 
 # Install python3 and pip
 apk add python3 py3-pip
@@ -372,29 +299,6 @@ apk add nomad consul terraform packer
 # Tailscale
 apk add tailscale
 
-##### Spotify
-# Install spotifyd and spotify-tui
-apk add spotifyd spotify-tui
-
-# Configure spotifyd
-mkdir -p /home/${USERNAME}/.config/spotifyd
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/spotifyd \
-  -o /home/${USERNAME}/.config/spotifyd/spotifyd.conf
-
-# Start spotifyd service when spotify-tui is launched
-# TODO
-
-##### ytfzf
-# Install ytfzf and dependencies
-apk add ytfzf fzf swayimg-full yt-dlp ncurses imagemagick
-
-# Configure ytfzf
-mkdir -p /home/${USERNAME}/.config/ytfzf
-
-curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/ytfzf \
-  -o /home/${USERNAME}/.config/ytfzf/conf.sh
-
 ##### neovim
 # Install neovim
 apk add neovim
@@ -404,20 +308,6 @@ mkdir -p /home/${USERNAME}/.config/nvim
 
 curl -Ssl https://raw.githubusercontent.com/gjpin/alpine-desktop/main/configs/neovim \
   -o /home/${USERNAME}/.config/nvim/init.lua
-
-# Add LSP updater helper to zshrc
-tee -a /home/${USERNAME}/.zshrc << EOF
-
-# Update LSP
-update_lsp(){
-  go install golang.org/x/tools/gopls@latest
-  go install github.com/lighttiger2505/sqls@latest
-  go install github.com/hashicorp/terraform-ls@latest
-  npm install -g bash-language-server
-  npm install -g typescript-language-server typescript
-  npm install -g pyright
-}
-EOF
 
 # Install lua language server
 apk add lua-language-server
@@ -441,6 +331,9 @@ tee "/home/${USERNAME}/.config/Code - OSS/User/settings.json" << EOF
     "workbench.settings.enableNaturalLanguageSearch": false,
     "workbench.iconTheme": null,
     "workbench.tree.indent": 12,
+    "window.titleBarStyle": "native",
+    "editor.fontWeight": "500",
+    "redhat.telemetry.enabled": false,
     "files.associations": {
         "*.j2": "terraform",
         "*.hcl": "terraform",
@@ -449,38 +342,22 @@ tee "/home/${USERNAME}/.config/Code - OSS/User/settings.json" << EOF
         "*.service": "ini"
     },
     "extensions.ignoreRecommendations": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true
 }
 EOF
 
 code-oss --install-extension golang.Go
 code-oss --install-extension dbaeumer.vscode-eslint
 code-oss --install-extension ms-python.python
-code-oss --install-extension geequlim.godot-tools
 
 ##### 2D/3D software
 apk add godot blender gimp
 
 ##### Common packages
-apk add firefox gcompat
-
-##### GTK apps and settings
-apk add nautilus file-roller \
-    gnome-text-editor \
-    gnome-calculator \
-    adw-gtk3 adwaita-icon-theme
-
-mkdir -p /home/${USERNAME}/.config/gtk-3.0
-tee -a /home/${USERNAME}/.config/gtk-3.0/settings.ini << EOF
-[Settings]
-gtk-theme-name = adw-gtk3
-gtk-icon-theme-name = Adwaita
-EOF
-
-# firefox-gnome-theme
-git clone https://github.com/rafaelmardojai/firefox-gnome-theme && cd firefox-gnome-theme
-./scripts/install.sh
-cd .. && rm -rf firefox-gnome-theme/
+apk add firefox
 
 # ##### Podman
 # # Install podman
@@ -499,12 +376,6 @@ cd .. && rm -rf firefox-gnome-theme/
 # echo ${USERNAME}:100000:65536 >/etc/subgid
 
 ###### Power management
-# Install zzz
-apk add zzz
-
-# Confirm acpi is not overriding power off button
-rm -rf /etc/acpi/
-
 # If it's a laptop, install and configure TLP
 # if cat /sys/class/dmi/id/chassis_type | grep 10 > /dev/null; then
 # apk add tlp
@@ -515,44 +386,13 @@ rm -rf /etc/acpi/
 # rc-update add tlp
 # fi
 
-# Configure initramfs for hibernation
-sed -i 's|lvm|lvm resume|' /etc/mkinitfs/mkinitfs.conf
-mkinitfs
-
-# Add kernel parameters required for hibernation
-sed -i 's|cryptdm=root|cryptdm=root resume=/dev/vg0/lv_swap|' /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
-
 ##### Outro
-# Configure connection with wpa_cli
-echo -e "ctrl_interface=DIR=/run/wpa_supplicant GROUP=wheel\nupdate_config=1\n$(/etc/wpa_supplicant/wpa_supplicant.conf)" > /etc/wpa_supplicant/wpa_supplicant.conf
-
 # Set swappiness
 echo 'vm.swappiness=10' >/etc/sysctl.d/99-swappiness.conf
 
-# wifi helper
-tee -a /home/${USERNAME}/.zshrc << 'EOF'
-
-# Wifi helper
-wifi_help(){
-  echo "wpa_cli
-
-    scan
-    scan_results
-    add_network
-    set_network 0 ssid "ssid"
-    set_network 0 psk "psk"
-    enable_network 0
-    save config"
-}
-EOF
-
-# Enable autologin on tty1
-sed -i 's|tty1::respawn:/sbin/getty|tty1::respawn:/sbin/agetty --autologin '${USERNAME}' --noclear|' /etc/inittab
-
 # Disable grub menu
-sed -i 's|GRUB_TIMEOUT=2|GRUB_TIMEOUT=0|' /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
+# sed -i 's|GRUB_TIMEOUT=2|GRUB_TIMEOUT=0|' /etc/default/grub
+# grub-mkconfig -o /boot/grub/grub.cfg
 
 # Make sure that all /home/$user actually belongs to $user 
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}

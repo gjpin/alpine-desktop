@@ -31,13 +31,7 @@ xdg-user-dirs-update
 
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# Change npm default dir
-npm config set prefix '~/.npm-global'
-
 # Install language servers
-go install golang.org/x/tools/gopls@latest
-go install github.com/lighttiger2505/sqls@latest
-go install github.com/hashicorp/terraform-ls@latest
 npm install -g bash-language-server
 npm install -g typescript-language-server typescript
 npm install -g pyright
@@ -56,42 +50,10 @@ flatpak install -y flathub com.valvesoftware.Steam.Utility.gamescope
 flatpak install -y flathub org.freedesktop.Platform.VulkanLayer.MangoHud
 ```
 
-# KDE
-```
-# Setup system to use Xorg
-# https://github.com/alpinelinux/alpine-conf/blob/master/setup-xorg-base.in
-apk add xorg-server xf86-input-libinput
-
-# Install Plasma and enable services
-# https://wiki.alpinelinux.org/wiki/KDE
-# https://github.com/alpinelinux/alpine-conf/blob/master/setup-desktop.in
-apk add plasma plasma-extras kde-applications-base elogind polkit-elogind
-
-rc-update add elogind
-rc-update add polkit
-rc-update add udev
-rc-update add sddm
-
-# Use grub breeze theme (MISSING CORRECT THEME FILENAME)
-tee -a /etc/default/grub << EOF
-GRUB_THEME=/usr/share/grub/themes/breeze
-GRUB_GFXMODE=1920x1080
-GRUB_GFXPAYLOAD_LINUX=keep
-EOF
-
-grub-mkconfig -o /boot/grub/grub.cfg
-
-# plymouth (WIP)
-apk add plymouth
-plymouth-set-default-theme breeze
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|& quiet splash|' cenas
-
-# overview with meta key
-kwriteconfig5 --file kwinrc --group ModifierOnlyShortcuts --key Meta "org.kde.kglobalaccel,/component/kwin,,invokeShortcut,Overview
-```
-
 # outro / todo
 ```
+confirm XDG_RUNTIME_DIR is set
+
 add LTS kernel
 
 secure boot:
@@ -104,6 +66,19 @@ qutebrowser flags:
 qutebrowser --qt-flag ignore-gpu-blocklist --qt-flag enable-zero-copy --qt-flag enable-accelerated-video-decode --qt-flag enable-native-gpu-memory-buffers 
 ```
 
+```
+# Avoid overwriting resolv.conf by DHCP
+mkdir -p /etc/udhcpc
+tee /etc/udhcpc/udhcpc.conf << EOF
+RESOLV_CONF="NO"
+EOF
+
+# Configure Cloudflare DNS servers
+tee /etc/resolv.conf << EOF
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+EOF
+```
 
 # To use swap file instead of lvm + swap partition
 ```
