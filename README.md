@@ -72,12 +72,25 @@ rc-update add polkit
 rc-update add udev
 rc-update add sddm
 
+# Use grub breeze theme (MISSING CORRECT THEME FILENAME)
+tee -a /etc/default/grub << EOF
+GRUB_THEME=/usr/share/grub/themes/breeze
+GRUB_GFXMODE=1920x1080
+EOF
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
 # overview with meta key
 kwriteconfig5 --file kwinrc --group ModifierOnlyShortcuts --key Meta "org.kde.kglobalaccel,/component/kwin,,invokeShortcut,Overview
 ```
 
 # outro / todo
 ```
+add LTS kernel
+
+secure boot:
+https://wiki.alpinelinux.org/wiki/UEFI_Secure_Boot
+
 xdg-open configuration:
 https://unix.stackexchange.com/questions/36380/how-to-properly-and-easily-configure-xdg-open-without-any-environment
 
