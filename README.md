@@ -99,3 +99,14 @@ EOF
 
 https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#Hibernation_into_swap_file
 ```
+
+# firmware
+```
+grubby --update-kernel=ALL --args='dyndbg="file drivers/base/firmware_loader/main.c +fmp"'
+
+dmesg | grep firmware_class
+dmesg | grep "Loading firmware from"
+
+linux-firmware-i915
+linux-firmware-intel
+```
