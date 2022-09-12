@@ -107,6 +107,13 @@ grubby --update-kernel=ALL --args='dyndbg="file drivers/base/firmware_loader/mai
 dmesg | grep firmware_class
 dmesg | grep "Loading firmware from"
 
-linux-firmware-i915
 linux-firmware-intel
+linux-firmware-i915 # intel graphics driver
+linux-firmware-other # wifi - iwlwifi
+
+linux-firmware-amd
+linux-firmware-amd-ucode
+linux-firmware-amdgpu
+linux-firmware-other # wifi - iwlwifi
+linux-firmware-intel # bluetooth - ibt
 ```
